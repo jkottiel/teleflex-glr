@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Labeling Requests — Teleflex</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%233ecf8e'/%3E%3Cellipse cx='16' cy='16' rx='6' ry='14' fill='none' stroke='%230d2233' stroke-width='1.5'/%3E%3Cpath d='M2 16h28M4.5 9h23M4.5 23h23' stroke='%230d2233' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<!-- DM Sans with swap to prevent FOUT; system-font stack fallback for corporate network filtering -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green:        #3ecf8e;
+    --green-dark:   #29b877;
+    --green-light:  #e8faf3;
+    --navy:         #0d2233;
+    --royal-blue:   #1e3d78;
+    --white:        #ffffff;
+    --gray-50:      #f8f9fb;
+    --gray-100:     #eef0f4;
+    --gray-200:     #dde1e9;
+    --gray-300:     #c8cdd9;
+    --gray-400:     #9aa3b2;
+    --gray-600:     #5c6578;
+    --gray-800:     #2d3345;
+    --red:          #e53e3e;
+    --p1:    #dc2626; --p1-bg: #fef2f2;
+    --p2:    #d97706; --p2-bg: #fffbeb;
+    --p3:    #2563eb; --p3-bg: #eff6ff;
+    --p4:    #6b7280; --p4-bg: #f9fafb;
+    --radius:    10px;
+    --radius-sm:  6px;
+    --shadow:    0 2px 12px rgba(13,34,51,0.08);
+    --shadow-md: 0 4px 24px rgba(13,34,51,0.12);
+    --t: 0.18s ease;
+    --font: 'DM Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: var(--font); background: var(--gray-50); color: var(--gray-800); min-height: 100vh; padding-bottom: 60px; }
+
+  /* ─── HEADER ─── */
+  .page-header { background: var(--green); padding: 24px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+  .page-header::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 70% 120%, rgba(255,255,255,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% -20%, rgba(13,34,51,0.12) 0%, transparent 50%);
+  }
+  .header-inner { position: relative; max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .review-badge { position: absolute; top: 0; right: 0; background: var(--navy); color: var(--white); border-radius: 10px; padding: 10px 16px; display: flex; flex-direction: column; align-items: center; line-height: 1.2; min-width: 80px; }
+  .review-badge .num { font-size: 28px; font-weight: 700; color: var(--green); line-height: 1; }
+  .review-badge .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8; }
+  .teleflex-logo { display: flex; align-items: center; justify-content: center; }
+  .teleflex-logo svg { width: 260px; height: auto; }
+  .header-title { font-size: 26px; font-weight: 700; color: var(--navy); letter-spacing: -0.3px; }
+  .header-subtitle { font-size: 14px; color: var(--navy); opacity: 0.75; line-height: 1.5; }
+  .header-subtitle strong { font-weight: 600; opacity: 1; }
+
+  /* ─── STICKY PROGRESS ─── */
+  .progress-bar-wrap { background: var(--royal-blue); padding: 10px 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(13,34,51,0.18); }
+  .progress-bar-inner { max-width: 780px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .progress-label { font-size: 12px; font-weight: 600; color: var(--green); white-space: nowrap; min-width: 80px; }
+  .progress-track { flex: 1; height: 4px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 99px; width: 0%; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+  .progress-pct { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); min-width: 32px; text-align: right; }
+
+  /* ─── LAYOUT ─── */
+  .form-wrap { max-width: 780px; margin: 28px auto 0; padding: 0 16px; display: grid; grid-template-columns: 100%; gap: 20px; }
+
+  /* ─── SECTION CARD ─── */
+  .section-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--gray-200); transition: box-shadow var(--t); width: 100%; min-width: 0; }
+  .section-card:focus-within { box-shadow: var(--shadow-md); }
+  .section-header { background: var(--royal-blue); padding: 14px 22px; display: flex; align-items: center; gap: 10px; }
+  .section-header svg { width: 18px; height: 18px; opacity: 0.75; flex-shrink: 0; color: var(--green); }
+  .section-title { font-size: 13px; font-weight: 600; letter-spacing: 0.03em; color: var(--white); }
+  .section-body { padding: 24px 22px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ─── GRID ─── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 580px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ─── FIELDS ─── */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .field-label .req { color: var(--red); font-size: 14px; line-height: 1; }
+  .field-hint { font-size: 12px; color: var(--gray-400); line-height: 1.4; }
+  .field-hint a { color: var(--green-dark); text-decoration: none; font-weight: 500; }
+  .field-hint a:hover { text-decoration: underline; }
+  .field-error { font-size: 12px; color: var(--red); display: none; align-items: center; gap: 4px; }
+  .field-error.visible { display: flex; }
+
+  input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea, select {
+    width: 100%; padding: 10px 14px; font-family: var(--font); font-size: 14px;
+    color: var(--gray-800); background: var(--white); border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm); outline: none;
+    transition: border-color var(--t), box-shadow var(--t); -webkit-appearance: none;
+  }
+  input[type="text"]::placeholder, input[type="email"]::placeholder,
+  input[type="number"]::placeholder, textarea::placeholder { color: var(--gray-400); }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="number"]:focus,
+  input[type="date"]:focus, textarea:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(62,207,142,0.15); }
+  input.invalid { border-color: var(--red) !important; box-shadow: 0 0 0 3px rgba(229,62,62,0.12) !important; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa3b2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* ─── TOOLTIP ─── */
+  .info-btn { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--gray-100); border: 1.5px solid var(--gray-200); cursor: pointer; font-size: 10px; font-weight: 700; color: var(--gray-600); transition: background var(--t), border-color var(--t); flex-shrink: 0; }
+  .info-btn:hover { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+  .tooltip-wrap { position: relative; display: inline-flex; }
+  .tooltip-text { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--navy); color: var(--white); font-size: 12px; font-weight: 400; line-height: 1.5; padding: 8px 12px; border-radius: 8px; white-space: normal; width: 220px; max-width: 260px; z-index: 200; box-shadow: var(--shadow-md); text-transform: none; letter-spacing: normal; }
+  .tooltip-text::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--navy); }
+  .tooltip-wrap:hover .tooltip-text { display: block; }
+
+  /* ─── PRIORITY CARDS ─── */
+  .priority-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 480px) { .priority-grid { grid-template-columns: 1fr; } }
+  .priority-card { border: 2px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px 14px; cursor: pointer; transition: all var(--t); background: var(--white); display: flex; gap: 12px; align-items: flex-start; user-select: none; }
+  .priority-card:hover { border-color: var(--gray-400); box-shadow: var(--shadow); }
+  .priority-card input[type="radio"] { display: none; }
+  .priority-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; transition: transform var(--t); }
+  .priority-card-body { display: flex; flex-direction: column; gap: 2px; }
+  .priority-card-num { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .priority-card-desc { font-size: 12px; color: var(--gray-600); line-height: 1.35; }
+  .priority-card[data-p="1"] .priority-dot { background: var(--p1); }
+  .priority-card[data-p="2"] .priority-dot { background: var(--p2); }
+  .priority-card[data-p="3"] .priority-dot { background: var(--p3); }
+  .priority-card[data-p="4"] .priority-dot { background: var(--p4); }
+  .priority-card[data-p="1"].selected { border-color: var(--p1); background: var(--p1-bg); }
+  .priority-card[data-p="1"].selected .priority-card-num { color: var(--p1); }
+  .priority-card[data-p="2"].selected { border-color: var(--p2); background: var(--p2-bg); }
+  .priority-card[data-p="2"].selected .priority-card-num { color: var(--p2); }
+  .priority-card[data-p="3"].selected { border-color: var(--p3); background: var(--p3-bg); }
+  .priority-card[data-p="3"].selected .priority-card-num { color: var(--p3); }
+  .priority-card[data-p="4"].selected { border-color: var(--p4); background: var(--p4-bg); }
+  .priority-card[data-p="4"].selected .priority-card-num { color: var(--p4); }
+  .priority-card.selected .priority-dot { transform: scale(1.2); box-shadow: 0 0 0 3px rgba(0,0,0,0.08); }
+
+  /* ─── PILLS ─── */
+  .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill-option { display: flex; }
+  .pill-option input[type="radio"], .pill-option input[type="checkbox"] { display: none; }
+  .pill-label { padding: 7px 16px; border-radius: 99px; border: 1.5px solid var(--gray-200); font-size: 13px; font-weight: 500; color: var(--gray-600); cursor: pointer; transition: all var(--t); background: var(--white); user-select: none; }
+  .pill-label:hover { border-color: var(--royal-blue); color: var(--royal-blue); }
+  .pill-option input:checked + .pill-label { background: var(--royal-blue); border-color: var(--royal-blue); color: var(--white); font-weight: 600; box-shadow: 0 2px 8px rgba(30,61,120,0.25); }
+
+  /* ─── TOGGLE BUTTONS ─── */
+  .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toggle-option { display: flex; }
+  .toggle-option input[type="radio"] { display: none; }
+  .toggle-btn { padding: 8px 20px; border-radius: var(--radius-sm); border: 1.5px solid var(--gray-200); font-size: 13px; font-weight: 600; color: var(--gray-600); cursor: pointer; transition: all var(--t); background: var(--white); user-select: none; letter-spacing: 0.03em; }
+  .toggle-btn:hover { border-color: var(--royal-blue); color: var(--royal-blue); }
+  .toggle-option input:checked + .toggle-btn { background: var(--royal-blue); border-color: var(--royal-blue); color: var(--white); }
+
+  /* ─── LANGUAGE QUICK-SELECT ─── */
+  .lang-controls { display: flex; flex-direction: column; gap: 10px; }
+  .lang-presets-area { display: grid; grid-template-columns: max-content 1fr; row-gap: 6px; align-items: start; }
+  .lang-preset-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray-400); padding-top: 5px; padding-right: 8px; white-space: nowrap; }
+  .lang-preset-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .preset-btn { padding: 4px 12px; border-radius: 99px; border: 1.5px solid var(--royal-blue); background: var(--royal-blue); font-family: var(--font); font-size: 12px; font-weight: 600; color: var(--white); cursor: pointer; transition: background var(--t), border-color var(--t); }
+  .preset-btn:hover { background: #162e5a; border-color: #162e5a; }
+  .preset-count { font-weight: 400; font-size: 10px; opacity: 0.7; letter-spacing: 0; }
+  .preset-btn.preset-clear { background: var(--white); border-color: var(--gray-200); color: var(--red); margin-left: auto; }
+  .preset-btn.preset-clear:hover { border-color: var(--red); background: #fff5f5; }
+  .user-preset-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px 4px 12px; border-radius: 99px; border: 1.5px solid var(--gray-200); background: var(--white); font-family: var(--font); font-size: 12px; font-weight: 600; color: var(--gray-600); transition: border-color var(--t); }
+  .user-preset-pill:hover { border-color: var(--gray-400); }
+  .user-preset-name { cursor: pointer; }
+  .user-preset-name:hover { color: var(--royal-blue); }
+  .user-preset-del { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: var(--gray-200); border: none; font-size: 10px; font-weight: 700; color: var(--gray-600); cursor: pointer; transition: all var(--t); line-height: 1; padding: 0; flex-shrink: 0; }
+  .user-preset-del:hover { background: var(--red); color: var(--white); }
+  .user-preset-pill.confirm-delete { border-color: var(--red); }
+  .user-preset-pill.confirm-delete .user-preset-name { color: var(--red); opacity: 0.7; }
+  .user-preset-del.confirm { background: var(--red); color: var(--white); width: auto; border-radius: 99px; padding: 0 7px; font-size: 11px; height: 18px; }
+  .user-preset-del.confirm:hover { background: #9b1c1c; }
+  .user-preset-cancel { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--gray-200); border: none; font-size: 11px; color: var(--gray-600); cursor: pointer; transition: all var(--t); padding: 0; flex-shrink: 0; }
+  .user-preset-cancel:hover { background: var(--gray-400); color: var(--white); }
+  .lang-action-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .lang-search-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+  .lang-search-input { width: 100%; padding: 7px 32px 7px 12px; font-family: var(--font); font-size: 13px; color: var(--gray-800); background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); outline: none; transition: border-color var(--t), box-shadow var(--t); }
+  .lang-search-input::placeholder { color: var(--gray-400); font-style: italic; font-size: 12px; }
+  .lang-search-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(62,207,142,0.15); }
+  .lang-search-clear { position: absolute; right: 8px; background: none; border: none; cursor: pointer; color: var(--gray-400); padding: 2px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: color var(--t), background var(--t); }
+  .lang-search-clear:hover { color: var(--gray-800); background: var(--gray-100); }
+  .preset-save-trigger { padding: 4px 10px; border-radius: 99px; border: 1px solid var(--gray-200); background: var(--white); font-family: var(--font); font-size: 12px; font-weight: 500; color: var(--gray-400); cursor: pointer; transition: border-color var(--t), color var(--t); white-space: nowrap; }
+  .preset-save-trigger:hover { border-color: var(--royal-blue); color: var(--royal-blue); }
+  .lang-save-name-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .lang-save-input { flex: 1; min-width: 140px; padding: 6px 12px; font-family: var(--font); font-size: 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); outline: none; color: var(--gray-800); transition: border-color var(--t), box-shadow var(--t); }
+  .lang-save-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(62,207,142,0.15); }
+  .lang-save-input::placeholder { color: var(--gray-400); }
+  .lang-save-hint { font-size: 11px; font-style: italic; color: var(--gray-400); width: 100%; }
+  .preset-overwrite-warn { color: #d97706; font-size: 11px; font-style: italic; }
+  .lang-action-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: var(--radius-sm); font-family: var(--font); font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--t); white-space: nowrap; flex-shrink: 0; }
+  .lang-action-btn.primary { background: var(--royal-blue); border: 1.5px solid var(--royal-blue); color: var(--white); }
+  .lang-action-btn.primary:hover { background: #162e5a; border-color: #162e5a; }
+  .lang-action-btn.secondary { background: var(--white); border: 1.5px solid var(--gray-200); color: var(--gray-600); }
+  .lang-action-btn.secondary:hover { border-color: var(--royal-blue); color: var(--royal-blue); }
+  .lang-undo-bar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: #fef3c7; border: 1px solid #fcd34d; border-radius: var(--radius-sm); font-size: 12px; }
+  .lang-undo-msg { color: #92400e; flex: 1; }
+  .lang-undo-btn { padding: 3px 10px; border-radius: 99px; border: 1.5px solid #d97706; background: var(--white); font-family: var(--font); font-size: 12px; font-weight: 600; color: #d97706; cursor: pointer; transition: all var(--t); }
+  .lang-undo-btn:hover { background: #d97706; color: var(--white); }
+  .lang-feedback { font-size: 12px; display: none; gap: 12px; flex-wrap: wrap; }
+  .lang-feedback.visible { display: flex; }
+  .lang-feedback-ok { color: var(--green-dark); font-weight: 600; }
+  .lang-feedback-warn { color: #b45309; font-weight: 600; }
+  .lang-feedback-tokens { color: var(--gray-600); font-family: monospace; font-size: 11px; background: #fef3c7; padding: 1px 6px; border-radius: 4px; }
+  .lang-selected-count { font-size: 12px; color: var(--gray-400); font-weight: 500; }
+  .lang-selected-count span { color: var(--royal-blue); font-weight: 700; }
+  .lang-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; }
+  .lang-grid .pill-label { font-size: 12px; padding: 5px 12px; border-radius: 99px; }
+
+  /* ─── FILE UPLOAD ─── */
+  .upload-zone { border: 2px dashed var(--gray-200); border-radius: var(--radius-sm); padding: 28px 20px; text-align: center; cursor: pointer; transition: all var(--t); background: var(--gray-50); }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--green); background: var(--green-light); }
+  .upload-icon { width: 36px; height: 36px; margin: 0 auto 10px; color: var(--gray-400); }
+  .upload-zone:hover .upload-icon, .upload-zone.dragover .upload-icon { color: var(--green-dark); }
+  .upload-main { font-size: 14px; font-weight: 600; color: var(--gray-800); margin-bottom: 4px; }
+  .upload-sub { font-size: 12px; color: var(--gray-400); }
+  .upload-sub span { color: var(--green-dark); font-weight: 500; cursor: pointer; }
+  .upload-sub span:hover { text-decoration: underline; }
+  #fileInput { display: none; }
+  .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .file-item { display: flex; align-items: center; gap: 10px; background: var(--green-light); border: 1px solid rgba(62,207,142,0.25); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 13px; color: var(--navy); font-weight: 500; }
+  .file-item svg { color: var(--green-dark); flex-shrink: 0; }
+  .file-item .file-size { color: var(--gray-400); font-size: 11px; margin-left: auto; }
+  .file-remove { background: none; border: none; cursor: pointer; color: var(--gray-400); padding: 2px; border-radius: 4px; transition: color var(--t); line-height: 1; }
+  .file-remove:hover { color: var(--red); }
+
+  /* ─── SUBMIT / COPY ROW ─── */
+  .copy-row { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--gray-200); background: var(--gray-50); cursor: pointer; transition: all var(--t); user-select: none; }
+  .copy-row:hover { border-color: var(--green); background: var(--green-light); }
+  .copy-row input[type="checkbox"] { display: none; }
+  .copy-check-box { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--gray-300); background: var(--white); flex-shrink: 0; margin-top: 1px; transition: all var(--t); display: flex; align-items: center; justify-content: center; }
+  .copy-row input:checked ~ .copy-check-box { background: var(--green); border-color: var(--green); }
+  .copy-check-box svg { display: none; }
+  .copy-row input:checked ~ .copy-check-box svg { display: block; }
+  .copy-text-wrap { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .copy-text { font-size: 13px; color: var(--gray-600); font-weight: 500; }
+  .copy-text strong { color: var(--navy); }
+  .copy-additional { display: none; }
+  .copy-additional.visible { display: flex; align-items: center; gap: 8px; }
+  .copy-additional-label { font-size: 12px; color: var(--gray-400); white-space: nowrap; }
+  .copy-additional input { font-size: 13px; padding: 6px 10px; flex: 1; }
+  .submit-section { background: var(--white); border-radius: var(--radius); border: 1px solid var(--gray-200); padding: 24px 22px; box-shadow: var(--shadow); }
+  .submit-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+  .submit-note { font-size: 12px; color: var(--gray-400); line-height: 1.5; }
+  .submit-note strong { color: var(--gray-600); }
+  .btn-submit { background: var(--green); color: var(--navy); font-family: var(--font); font-size: 15px; font-weight: 700; border: none; border-radius: 8px; padding: 12px 32px; cursor: pointer; transition: all var(--t); box-shadow: 0 2px 12px rgba(62,207,142,0.35); letter-spacing: 0.02em; white-space: nowrap; }
+  .btn-submit:hover { background: var(--green-dark); box-shadow: 0 4px 20px rgba(62,207,142,0.45); transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(62,207,142,0.3); }
+  .btn-submit:disabled { background: var(--gray-200); color: var(--gray-400); box-shadow: none; cursor: not-allowed; transform: none; }
+
+  /* ─── FOOTER ─── */
+  .page-footer { text-align: center; padding: 28px 16px 16px; font-size: 12px; color: var(--gray-400); display: flex; gap: 16px; justify-content: center; }
+  .page-footer a { color: var(--gray-400); text-decoration: none; }
+  .page-footer a:hover { color: var(--gray-600); }
+
+  /* ─── OPTIONAL FIELD ─── */
+  .optional-field { background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: var(--radius-sm); padding: 12px 14px; }
+  .optional-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gray-400); background: var(--gray-100); border-radius: 99px; padding: 2px 7px; margin-left: 4px; vertical-align: middle; }
+
+  /* ─── ADD RECIPIENT ─── */
+  .copy-additional-trigger { margin-top: 4px; }
+  .add-recipient-btn { background: none; border: none; font-family: var(--font); font-size: 12px; font-weight: 600; color: var(--green-dark); cursor: pointer; padding: 0; transition: color var(--t); }
+  .add-recipient-btn:hover { color: var(--royal-blue); }
+  .copy-additional { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .copy-additional-label { font-size: 12px; color: var(--gray-400); white-space: nowrap; }
+  .copy-additional input { font-size: 13px; padding: 5px 10px; flex: 1; min-width: 200px; }
+  .add-recipient-remove { background: none; border: none; font-size: 16px; color: var(--gray-400); cursor: pointer; padding: 0 4px; line-height: 1; transition: color var(--t); }
+  .add-recipient-remove:hover { color: var(--red); }
+
+  /* ─── SUCCESS SCREEN ─── */
+  .success-wrap { min-height: 100vh; background: var(--green); display: flex; align-items: center; justify-content: center; padding: 40px 16px; position: relative; }
+  .success-wrap::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 120%, rgba(255,255,255,0.18) 0%, transparent 60%), radial-gradient(ellipse at 20% -20%, rgba(13,34,51,0.12) 0%, transparent 50%); pointer-events: none; }
+  .success-card { position: relative; background: var(--white); border-radius: 16px; box-shadow: 0 8px 48px rgba(13,34,51,0.18); padding: 48px 40px 40px; max-width: 520px; width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn 0.4s ease; }
+  .success-check svg { width: 64px; height: 64px; }
+  .success-check circle { stroke-dasharray: 157; stroke-dashoffset: 157; animation: drawCircle 0.5s 0.1s ease forwards; }
+  .success-check path  { stroke-dasharray: 40;  stroke-dashoffset: 40;  animation: drawCheck  0.3s 0.55s ease forwards; }
+  @keyframes drawCircle { to { stroke-dashoffset: 0; } }
+  @keyframes drawCheck  { to { stroke-dashoffset: 0; } }
+  .success-title { font-size: 24px; font-weight: 700; color: var(--navy); letter-spacing: -0.2px; margin: 0; }
+  .success-msg { font-size: 15px; color: var(--gray-600); line-height: 1.6; margin: 0; }
+  .success-ref { display: flex; align-items: center; gap: 10px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 10px 16px; font-size: 13px; }
+  .success-ref-label { color: var(--gray-400); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+  .success-ref-val { color: var(--navy); font-weight: 700; font-family: monospace; }
+  .success-summary { text-align: left; width: 100%; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13px; color: var(--gray-600); display: flex; flex-direction: column; gap: 6px; }
+  .success-summary-row { display: flex; gap: 8px; }
+  .success-summary-key { color: var(--gray-400); font-weight: 600; min-width: 120px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; padding-top: 1px; }
+  .success-summary-val { color: var(--navy); font-weight: 500; }
+  .success-regards { font-size: 14px; color: var(--gray-600); line-height: 1.6; margin: 0; }
+  .success-btn { background: var(--royal-blue); color: var(--white); font-family: var(--font); font-size: 14px; font-weight: 700; border: none; border-radius: 8px; padding: 12px 28px; cursor: pointer; transition: all var(--t); margin-top: 4px; }
+  .success-btn:hover { background: #162e5a; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(30,61,120,0.3); }
+
+  /* ─── CONDITIONAL REVEAL ─── */
+  .cr { display: none; }
+  .cr.on { display: block; animation: fadeIn 0.22s ease; }
+  .cr.on-flex { display: flex; animation: fadeIn 0.22s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── DIVIDER ─── */
+  .field-divider { border: none; border-top: 1px solid var(--gray-200); margin: 0; }
+
+  /* ─── SUBSECTION LABEL ─── */
+  .subsection-title { font-size: 15px; font-weight: 700; color: var(--gray-800); }
+  .subsection-hint { font-size: 12px; color: var(--gray-400); }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="page-header">
+  <div class="header-inner">
+    <div class="review-badge" aria-label="3 business day review">
+      <span class="num">3</span>
+      <span class="lbl">Business<br>Day Review</span>
+    </div>
+    <div class="teleflex-logo" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 119.974 24.0264" role="img" aria-label="Teleflex">
+        <defs><clipPath id="clip_1"><path transform="matrix(1,0,0,-1,0,24.0264)" d="M0 24.026H119.974V0H0Z"/></clipPath></defs>
+        <g clip-path="url(#clip_1)">
+          <path transform="matrix(1,0,0,-1,48.7874,13.6389)" d="M0 0H11.431C11.592 2.261 8.883 4.767 6.171 4.896 2.196 5.084 .054 2.23 0 0M10.755-4.912H13.842C12.651-8.151 8.732-11.334 3.538-10.123-1.261-9.003-4.185-3.934-2.863 .964-1.552 5.819 3.524 8.594 8.397 7.11 13.404 5.586 14.982 .664 14.448-2.375H-.014C-.27-4.284 1.32-6.52 3.496-7.354 5.976-8.305 9.166-7.754 10.755-4.912" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,23.0975,13.642799)" d="M0 0H11.383C11.583 2.316 8.754 4.871 5.982 4.902 2.722 4.938-.166 2.596 0 0M14.447-2.366H-.044C-.36-4.047 1.146-6.294 3.141-7.212 5.472-8.284 9.013-7.99 10.748-4.903H13.808C12.796-7.77 9.298-11.036 4.229-10.268-.576-9.541-3.883-4.935-3.095 0-2.333 4.775 1.867 7.967 6.691 7.445 12.194 6.85 14.991 2.014 14.447-2.366" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,95.8052,13.6416)" d="M0 0C-.296 2.855-2.843 4.889-5.67 4.943-8.532 4.997-11.251 2.912-11.487 0ZM2.989-2.382H-11.512C-11.684-8.157-3.343-9.533-.709-4.915H2.378C-.509-12.442-11.622-11.829-14.168-4.392-15.355-.923-14.307 3.096-11.476 5.452-8.713 7.751-4.657 8.135-1.481 6.466 1.674 4.81 3.489 1.136 2.989-2.382" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,104.7478,14.7351)" d="M0 0C-1.88 2.684-3.735 5.331-5.636 8.045H-1.927C-.667 6.099 .598 4.146 1.893 2.147 3.179 4.149 4.436 6.106 5.689 8.055H9.335C7.445 5.342 5.598 2.691 3.723 0 5.735-2.893 7.748-5.787 9.804-8.743H6.062C4.696-6.654 3.313-4.541 1.893-2.37 .475-4.523-.919-6.637-2.313-8.753H-6.056C-4.018-5.807-2.019-2.918 0 0" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,16.0072,23.5108)" d="M0 0H-3.045V23.448H7.421V20.616H0Z" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,10.4692,23.5056)" d="M0 0H-3.013V20.577H-10.468V23.448H0Z" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,66.7385,8.972699)" d="M0 0H-2.277V2.344H.003C.003 4.212-.049 6.192 1.435 7.576 2.727 8.781 4.488 8.817 6.146 8.971V6.582C5.174 6.466 4.149 6.358 3.551 5.482 2.933 4.577 3.111 3.399 3.111 2.37H6.16V.005H3.098V-14.523H0Z" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,0,24.0264)" d="M75.618 23.979H78.59599V.51399996H75.618Z" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,0,24.0264)" d="M40.124 23.968H43.108V.52000048H40.124Z" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,117.1727,6.5130007)" d="M0 0V-.441H-.472V-2.507H-.961V-.441H-1.433V0Z" fill="#1e3d78"/>
+          <path transform="matrix(1,0,0,-1,117.8889,9.019899)" d="M0 0H-.486V2.507H.164L.801 .684 1.436 2.507H2.085V0H1.601L1.618 1.82 .985 0H.615L-.021 1.82Z" fill="#1e3d78"/>
+        </g>
+      </svg>
+    </div>
+    <div class="header-text">
+      <div class="header-title">Global Labeling Requests</div>
+      <div class="header-subtitle">
+        Complete all required fields. Updates to existing projects must go through your assigned label resource.<br>
+        <strong>A labeling representative will respond within 3 business days.</strong>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ STICKY PROGRESS ═══ -->
+<div class="progress-bar-wrap" role="status" aria-live="polite" aria-label="Form completion progress">
+  <div class="progress-bar-inner">
+    <span class="progress-label" id="progressLabel">Your progress</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+</div>
+
+<!-- ═══ FORM ═══ -->
+<div class="form-wrap">
+
+  <!-- ── PROJECT DETAILS (includes requester fields) ── -->
+  <div class="section-card">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      <span class="section-title">Project details</span>
+    </div>
+    <div class="section-body">
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label" for="reqEmail">Requester email <span class="req" aria-label="required">*</span></label>
+          <input type="email" id="reqEmail" autocomplete="email" placeholder="you@teleflex.com" required data-track aria-required="true" aria-describedby="emailError">
+          <div class="field-error" id="emailError" role="alert">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please enter a valid email address
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="projManager">Project manager <span class="req" aria-label="required">*</span></label>
+          <input type="text" id="projManager" autocomplete="name" placeholder="Full name" required data-track aria-required="true">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="projName">Project name <span class="req" aria-label="required">*</span></label>
+        <input type="text" id="projName" placeholder="Descriptive project name" required data-track aria-required="true">
+      </div>
+
+      <!-- Priority -->
+      <div class="field">
+        <div class="field-label" id="priorityLabel">Priority <span class="req" aria-label="required">*</span></div>
+        <div class="priority-grid" role="group" aria-labelledby="priorityLabel">
+          <label class="priority-card" data-p="1">
+            <input type="radio" name="priority" value="1" data-track aria-label="Priority 1 — Regulatory, QA Issues, Production Down">
+            <div class="priority-dot" aria-hidden="true"></div>
+            <div class="priority-card-body"><div class="priority-card-num">Priority 1</div><div class="priority-card-desc">Regulatory, QA Issues, Production Down</div></div>
+          </label>
+          <label class="priority-card" data-p="2">
+            <input type="radio" name="priority" value="2" data-track aria-label="Priority 2 — Business Issues">
+            <div class="priority-dot" aria-hidden="true"></div>
+            <div class="priority-card-body"><div class="priority-card-num">Priority 2</div><div class="priority-card-desc">Business Issues (e.g., backorders)</div></div>
+          </label>
+          <label class="priority-card" data-p="3">
+            <input type="radio" name="priority" value="3" data-track aria-label="Priority 3 — New Labeling / Product Line Extension">
+            <div class="priority-dot" aria-hidden="true"></div>
+            <div class="priority-card-body"><div class="priority-card-num">Priority 3</div><div class="priority-card-desc">New Labeling / Product Line Extension</div></div>
+          </label>
+          <label class="priority-card" data-p="4">
+            <input type="radio" name="priority" value="4" data-track aria-label="Priority 4 — Cosmetic revisions">
+            <div class="priority-dot" aria-hidden="true"></div>
+            <div class="priority-card-body"><div class="priority-card-num">Priority 4</div><div class="priority-card-desc">Cosmetic revisions to labeling</div></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label" for="sustainingNum">
+            Sustaining project #
+            <div class="tooltip-wrap">
+              <button class="info-btn" type="button" aria-label="Help: Sustaining project number">i</button>
+              <div class="tooltip-text" role="tooltip">BU Planview number for sustaining projects. Enter <strong>N/A</strong> if not applicable.</div>
+            </div>
+          </label>
+          <input type="text" id="sustainingNum" placeholder="Planview # or N/A" data-track>
+        </div>
+        <div class="field">
+          <label class="field-label" for="intakeNum">
+            Sustaining intake #
+            <div class="tooltip-wrap">
+              <button class="info-btn" type="button" aria-label="Help: Sustaining intake number">i</button>
+              <div class="tooltip-text" role="tooltip">Resource intake number for sustaining projects.</div>
+            </div>
+          </label>
+          <input type="text" id="intakeNum" placeholder="Intake number (optional)" data-track>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="labelSpec">
+          Label spec number <span class="req" aria-label="required">*</span>
+          <div class="tooltip-wrap">
+            <button class="info-btn" type="button" aria-label="Help: Label spec number">i</button>
+            <div class="tooltip-text" role="tooltip">Complete form D0003041 to obtain your label spec number before submitting.</div>
+          </div>
+        </label>
+        <div class="field-hint">Don't have one yet? <a href="#" target="_blank" rel="noopener">Complete form D0003041 ↗</a></div>
+        <input type="text" id="labelSpec" placeholder="e.g. LS-00123" required data-track aria-required="true">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CLASSIFICATION ── -->
+  <div class="section-card">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h8M4 18h4"/></svg>
+      <span class="section-title">Classification</span>
+    </div>
+    <div class="section-body">
+
+      <!-- Business Unit -->
+      <div class="field">
+        <div class="field-label" id="buLabel">Business unit <span class="req" aria-label="required">*</span></div>
+        <div class="pill-group" role="radiogroup" aria-labelledby="buLabel">
+          <label class="pill-option"><input type="radio" name="bu" value="Anesthesia" data-track><span class="pill-label">Anesthesia</span></label>
+          <label class="pill-option"><input type="radio" name="bu" value="Emergency Medicine" data-track><span class="pill-label">Emergency Medicine</span></label>
+          <label class="pill-option"><input type="radio" name="bu" value="Interventional" data-track><span class="pill-label">Interventional</span></label>
+          <label class="pill-option"><input type="radio" name="bu" value="Interventional Urology" data-track><span class="pill-label">Interventional Urology</span></label>
+          <label class="pill-option"><input type="radio" name="bu" value="Surgical" data-track><span class="pill-label">Surgical</span></label>
+          <label class="pill-option"><input type="radio" name="bu" value="Tracheostomy" data-track><span class="pill-label">Tracheostomy</span></label>
+          <label class="pill-option"><input type="radio" name="bu" value="Urology" data-track><span class="pill-label">Urology</span></label>
+          <label class="pill-option"><input type="radio" name="bu" value="Vascular" data-track><span class="pill-label">Vascular</span></label>
+        </div>
+      </div>
+
+      <!-- LCR toggle -->
+      <div class="field">
+        <div class="field-label" id="lcrLabel">
+          LCR, ECR/ECO, or NCR/CO created? <span class="req" aria-label="required">*</span>
+          <div class="tooltip-wrap">
+            <button class="info-btn" type="button" aria-label="Help: LCR/ECR/NCR">i</button>
+            <div class="tooltip-text" role="tooltip">For locations using Agile label change request (LCR) with the Kallik Veraciti labeling system.</div>
+          </div>
+        </div>
+        <div class="toggle-group" role="radiogroup" aria-labelledby="lcrLabel">
+          <label class="toggle-option"><input type="radio" name="lcr" value="Yes — LCR" data-track><span class="toggle-btn">Yes — LCR</span></label>
+          <label class="toggle-option"><input type="radio" name="lcr" value="Yes — ECR/ECO" data-track><span class="toggle-btn">Yes — ECR/ECO</span></label>
+          <label class="toggle-option"><input type="radio" name="lcr" value="Yes — NCR/CO" data-track><span class="toggle-btn">Yes — NCR/CO</span></label>
+          <label class="toggle-option"><input type="radio" name="lcr" value="No" data-track><span class="toggle-btn">No</span></label>
+        </div>
+      </div>
+
+      <!-- YES-ONLY: CR# and CO# -->
+      <div class="cr" id="lcrYesOnlyBlock">
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label" for="changeReqNum">Change request number (LCR/ECR/NCR) <span class="req" aria-label="required">*</span></label>
+            <input type="text" id="changeReqNum" placeholder="e.g. LCR-00456" data-track>
+          </div>
+          <div class="field">
+            <label class="field-label" for="changeOrderNum">Change order number (CO/DCO/ECO) <span class="req" aria-label="required">*</span></label>
+            <input type="text" id="changeOrderNum" placeholder="e.g. ECO-00789" data-track>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHARED: shown when either Yes OR No selected -->
+      <div class="cr" id="lcrSharedBlock">
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+          <div class="field">
+            <label class="field-label" for="projReason">Project reason <span class="req" aria-label="required">*</span></label>
+            <input type="text" id="projReason" placeholder="Brief reason for this labeling project" data-track>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="projDesc">Brief project description <span class="req" aria-label="required">*</span></label>
+            <textarea id="projDesc" rows="3" placeholder="Describe the scope and nature of this labeling project…" data-track></textarea>
+          </div>
+
+          <!-- Design Site -->
+          <div class="field">
+            <div class="field-label" id="dsLabel">Design site <span class="req" aria-label="required">*</span></div>
+            <div class="pill-group" role="radiogroup" aria-labelledby="dsLabel">
+              <label class="pill-option"><input type="radio" name="designSite" value="Chelmsford" data-track><span class="pill-label">Chelmsford</span></label>
+              <label class="pill-option"><input type="radio" name="designSite" value="Kamunting" data-track><span class="pill-label">Kamunting</span></label>
+              <label class="pill-option"><input type="radio" name="designSite" value="Mansfield" data-track><span class="pill-label">Mansfield</span></label>
+              <label class="pill-option"><input type="radio" name="designSite" value="Maple Grove" data-track><span class="pill-label">Maple Grove</span></label>
+              <label class="pill-option"><input type="radio" name="designSite" value="Morrisville" data-track><span class="pill-label">Morrisville</span></label>
+              <label class="pill-option"><input type="radio" name="designSite" value="Pleasanton" data-track><span class="pill-label">Pleasanton</span></label>
+              <label class="pill-option"><input type="radio" name="designSite" value="Puducherry" data-track><span class="pill-label">Puducherry</span></label>
+              <label class="pill-option"><input type="radio" name="designSite" value="Wyomissing" data-track><span class="pill-label">Wyomissing</span></label>
+              <label class="pill-option"><input type="radio" name="designSite" value="Zdar" data-track><span class="pill-label">Zdar</span></label>
+            </div>
+          </div>
+
+          <!-- CM sub-block: Chelmsford or Maple Grove, Yes path only -->
+          <div class="cr" id="designSiteCMBlock">
+            <div style="display:flex;flex-direction:column;gap:18px;">
+              <hr class="field-divider">
+
+              <!-- GTINs and IPNs side by side — they almost always go together -->
+              <div class="grid-2">
+                <div class="field">
+                  <div class="field-label" id="newGtinsLabel">New GTINs required? <span class="req" aria-label="required">*</span></div>
+                  <div class="field-hint">If yes — please attach spreadsheet with list</div>
+                  <div class="toggle-group" style="margin-top:6px;" role="radiogroup" aria-labelledby="newGtinsLabel">
+                    <label class="toggle-option"><input type="radio" name="newGtins" value="Yes" data-track><span class="toggle-btn">Yes</span></label>
+                    <label class="toggle-option"><input type="radio" name="newGtins" value="No" data-track><span class="toggle-btn">No</span></label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-label" id="newIpnsLabel">New IPNs required? <span class="req" aria-label="required">*</span></div>
+                  <div class="field-hint">If yes — please attach spreadsheet with list</div>
+                  <div class="toggle-group" style="margin-top:6px;" role="radiogroup" aria-labelledby="newIpnsLabel">
+                    <label class="toggle-option"><input type="radio" name="newIpns" value="Yes" data-track><span class="toggle-btn">Yes</span></label>
+                    <label class="toggle-option"><input type="radio" name="newIpns" value="No" data-track><span class="toggle-btn">No</span></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-label" id="newTransLabel">Translations required? <span class="req" aria-label="required">*</span></div>
+                <div class="toggle-group" role="radiogroup" aria-labelledby="newTransLabel">
+                  <label class="toggle-option"><input type="radio" name="newTranslations" value="Yes" data-track><span class="toggle-btn">Yes</span></label>
+                  <label class="toggle-option"><input type="radio" name="newTranslations" value="No" data-track><span class="toggle-btn">No</span></label>
+                </div>
+              </div>
+
+              <!-- Translations sub-block -->
+              <div class="cr" id="translationsYesBlock">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                  <div class="field">
+                    <label class="field-label" for="costCenter">Cost center <span class="req" aria-label="required">*</span></label>
+                    <div class="field-hint">Add cost center responsible for paying the cost of translations</div>
+                    <input type="text" id="costCenter" placeholder="e.g. CC-4821" style="margin-top:6px;" data-track>
+                  </div>
+
+                  <div class="field">
+                    <div class="field-label">Countries to be translated <span class="req" aria-label="required">*</span></div>
+                    <div class="lang-controls">
+                      <div class="lang-presets-area">
+                        <span class="lang-preset-label">Presets</span>
+                        <div class="lang-preset-btns" id="builtinPresetBtns"></div>
+                        <div></div>
+                        <div class="lang-preset-btns" id="userPresetBtns" style="display:none;"></div>
+                      </div>
+                      <div class="lang-action-row">
+                        <div class="lang-search-wrap">
+                          <input class="lang-search-input" id="langSearchInput" type="text"
+                            placeholder="Search or paste languages: es, fr, de or Spanish, French, German…"
+                            aria-label="Search or paste language codes">
+                          <button class="lang-search-clear" id="langSearchClear" type="button" style="display:none;" aria-label="Clear search">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          </button>
+                        </div>
+                        <button class="lang-action-btn secondary" type="button" id="copyLangBtn" aria-label="Copy selected languages to clipboard">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                          Copy
+                        </button>
+                      </div>
+                      <div class="lang-save-name-row" id="langSaveNameRow" style="display:none;">
+                        <input class="lang-save-input" id="presetNameInput" type="text" placeholder="Preset name…" maxlength="30" aria-label="Enter name for this language preset">
+                        <button class="lang-action-btn primary" type="button" id="confirmSaveBtn">Save</button>
+                        <button class="lang-action-btn secondary" type="button" id="cancelSaveBtn">Cancel</button>
+                        <span class="lang-save-hint" id="presetSaveHint" role="status" aria-live="polite"></span>
+                      </div>
+                      <div class="lang-feedback" id="langFeedback" role="status" aria-live="polite">
+                        <span class="lang-feedback-ok" id="langFeedbackOk"></span>
+                        <span class="lang-feedback-warn" id="langFeedbackWarn"></span>
+                      </div>
+                      <div class="lang-undo-bar" id="langUndoBar" style="display:none;" role="status">
+                        <span class="lang-undo-msg">Selection cleared.</span>
+                        <button class="lang-undo-btn" type="button" id="undoClearBtn">↩ Undo</button>
+                      </div>
+                      <div class="lang-selected-count" id="langCount" aria-live="polite">Selected: <span>0</span></div>
+                      <div class="lang-grid" id="langGrid">
+                        <label class="pill-option"><input type="checkbox" name="langs" value="bg" data-track><span class="pill-label">bg Bulgarian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="cs" data-track><span class="pill-label">cs Czech</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="da" data-track><span class="pill-label">da Danish</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="de" data-track><span class="pill-label">de German</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="el" data-track><span class="pill-label">el Greek</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="en" data-track><span class="pill-label">en English</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="es" data-track><span class="pill-label">es Spanish</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="es_la" data-track><span class="pill-label">es_la Spanish – Latin American</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="et" data-track><span class="pill-label">et Estonian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="fi" data-track><span class="pill-label">fi Finnish</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="fr" data-track><span class="pill-label">fr French</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="fr_cn" data-track><span class="pill-label">fr_cn French Canadian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="ga" data-track><span class="pill-label">ga Irish</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="hr" data-track><span class="pill-label">hr Croatian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="hu" data-track><span class="pill-label">hu Hungarian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="id" data-track><span class="pill-label">id Indonesian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="is" data-track><span class="pill-label">is Icelandic</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="it" data-track><span class="pill-label">it Italian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="ja" data-track><span class="pill-label">ja Japanese</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="ko" data-track><span class="pill-label">ko Korean</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="lb" data-track><span class="pill-label">lb Luxembourgish</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="lt" data-track><span class="pill-label">lt Lithuanian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="lv" data-track><span class="pill-label">lv Latvian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="ms" data-track><span class="pill-label">ms Malay</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="mt" data-track><span class="pill-label">mt Maltese</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="nl" data-track><span class="pill-label">nl Dutch</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="no" data-track><span class="pill-label">no Norwegian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="pl" data-track><span class="pill-label">pl Polish</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="pt" data-track><span class="pill-label">pt Portuguese</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="pt_br" data-track><span class="pill-label">pt_br Portuguese – Brazilian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="ro" data-track><span class="pill-label">ro Romanian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="ru" data-track><span class="pill-label">ru Russian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="sk" data-track><span class="pill-label">sk Slovak</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="sl" data-track><span class="pill-label">sl Slovene</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="sr" data-track><span class="pill-label">sr Serbian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="sv" data-track><span class="pill-label">sv Swedish</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="th" data-track><span class="pill-label">th Thai</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="tr" data-track><span class="pill-label">tr Turkish</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="uk" data-track><span class="pill-label">uk Ukrainian</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="vi" data-track><span class="pill-label">vi Vietnamese</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="zh_cn" data-track><span class="pill-label">zh_cn Chinese (simplified)</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="zh_tw" data-track><span class="pill-label">zh_tw Chinese (Traditional)</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="other" data-track><span class="pill-label">Other</span></label>
+                        <label class="pill-option"><input type="checkbox" name="langs" value="unknown" data-track><span class="pill-label">Unknown at this time</span></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- /translationsYesBlock -->
+
+              <div class="field">
+                <label class="field-label" for="riaRationale">Regulatory impact assessment rationale <span class="req" aria-label="required">*</span></label>
+                <div class="field-hint">N/A if not applicable</div>
+                <input type="text" id="riaRationale" placeholder="Enter rationale or N/A" style="margin-top:6px;" data-track>
+              </div>
+
+              <!-- Packaging Impact and Label Size Change side by side — related concerns -->
+              <div class="grid-2">
+                <div class="field">
+                  <div class="field-label" id="packLabel">Packaging impact? <span class="req" aria-label="required">*</span></div>
+                  <div class="field-hint">Is there a packaging impact with this change?</div>
+                  <div class="toggle-group" style="margin-top:6px;" role="radiogroup" aria-labelledby="packLabel">
+                    <label class="toggle-option"><input type="radio" name="packagingImpact" value="Yes" data-track><span class="toggle-btn">Yes</span></label>
+                    <label class="toggle-option"><input type="radio" name="packagingImpact" value="No" data-track><span class="toggle-btn">No</span></label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-label" id="labelSizeLabel">Labeling size change required? <span class="req" aria-label="required">*</span></div>
+                  <div class="field-hint">&nbsp;</div>
+                  <div class="toggle-group" style="margin-top:6px;" role="radiogroup" aria-labelledby="labelSizeLabel">
+                    <label class="toggle-option"><input type="radio" name="labelSizeChange" value="Yes" data-track><span class="toggle-btn">Yes</span></label>
+                    <label class="toggle-option"><input type="radio" name="labelSizeChange" value="No" data-track><span class="toggle-btn">No</span></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field optional-field">
+                <div class="field-label" id="dwCMLabel">Design work requested <span class="optional-badge">optional</span></div>
+                <div class="field-hint">If known, please select required design work</div>
+                <div class="toggle-group" style="margin-top:6px;flex-wrap:wrap;" role="radiogroup" aria-labelledby="dwCMLabel">
+                  <label class="toggle-option"><input type="radio" name="designWorkCM" value="Manual Label Design" data-track><span class="toggle-btn">Manual label design</span></label>
+                  <label class="toggle-option"><input type="radio" name="designWorkCM" value="Kallik Label Design" data-track><span class="toggle-btn">Kallik label design</span></label>
+                  <label class="toggle-option"><input type="radio" name="designWorkCM" value="Combination" data-track><span class="toggle-btn">Combination of Kallik and manual</span></label>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-label" id="foLabelCM">Functional owner approvers <span class="req" aria-label="required">*</span></div>
+                <div class="field-hint" style="margin-bottom:10px;">At least one approver required across the three roles.</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                  <div class="field">
+                    <label class="field-label" for="foMarketingCM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Marketing</label>
+                    <input type="text" id="foMarketingCM" placeholder="Name" data-track autocomplete="name">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="foRACM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Reg. Affairs</label>
+                    <input type="text" id="foRACM" placeholder="Name" data-track autocomplete="name">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="foEngineeringCM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Engineering</label>
+                    <input type="text" id="foEngineeringCM" placeholder="Name" data-track autocomplete="name">
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="cmComments">Comments</label>
+                <textarea id="cmComments" rows="3" placeholder="Any additional comments…" data-track></textarea>
+              </div>
+            </div>
+          </div><!-- /designSiteCMBlock -->
+
+          <!-- Planned AOP -->
+          <div class="field">
+            <div class="field-label" id="aopLabel">Planned AOP project? <span class="req" aria-label="required">*</span></div>
+            <div class="toggle-group" role="radiogroup" aria-labelledby="aopLabel">
+              <label class="toggle-option"><input type="radio" name="aop" value="Yes" data-track><span class="toggle-btn">Yes</span></label>
+              <label class="toggle-option"><input type="radio" name="aop" value="No" data-track><span class="toggle-btn">No</span></label>
+            </div>
+          </div>
+
+          <!-- MW sub-block: Morrisville, Wyomissing, Kamunting, Yes path only -->
+          <div class="cr" id="designSiteMWBlock">
+            <div style="display:flex;flex-direction:column;gap:18px;">
+              <div class="field optional-field">
+                <div class="field-label" id="dwMWLabel">Design work requested <span class="optional-badge">optional</span></div>
+                <div class="field-hint">If known, please select required design work</div>
+                <div class="toggle-group" style="margin-top:6px;flex-wrap:wrap;" role="radiogroup" aria-labelledby="dwMWLabel">
+                  <label class="toggle-option"><input type="radio" name="designWorkMW" value="Manual Label Design" data-track><span class="toggle-btn">Manual label design</span></label>
+                  <label class="toggle-option"><input type="radio" name="designWorkMW" value="Kallik Label Design" data-track><span class="toggle-btn">Kallik label design</span></label>
+                  <label class="toggle-option"><input type="radio" name="designWorkMW" value="Combination" data-track><span class="toggle-btn">Combination of Kallik and manual</span></label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="field-label" id="foLabelMW">Functional owner approvers <span class="req" aria-label="required">*</span></div>
+                <div class="field-hint" style="margin-bottom:10px;">At least one approver required across the three roles.</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                  <div class="field">
+                    <label class="field-label" for="foMarketingMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Marketing</label>
+                    <input type="text" id="foMarketingMW" placeholder="Name" data-track autocomplete="name">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="foRAMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Reg. Affairs</label>
+                    <input type="text" id="foRAMW" placeholder="Name" data-track autocomplete="name">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="foEngineeringMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Engineering</label>
+                    <input type="text" id="foEngineeringMW" placeholder="Name" data-track autocomplete="name">
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="mwComments">Comments</label>
+                <textarea id="mwComments" rows="3" placeholder="Any additional comments…" data-track></textarea>
+              </div>
+            </div>
+          </div><!-- /designSiteMWBlock -->
+
+          <!-- Manufacturing FG Location -->
+          <div class="field">
+            <div class="field-label" id="mfgLabel">Manufacturing FG location <span class="req" aria-label="required">*</span></div>
+            <div class="pill-group" role="radiogroup" aria-labelledby="mfgLabel">
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Chelmsford" data-track><span class="pill-label">Chelmsford</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Chihuahua" data-track><span class="pill-label">Chihuahua</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Hradec" data-track><span class="pill-label">Hradec</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Juventud" data-track><span class="pill-label">Juventud</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Kamunting" data-track><span class="pill-label">Kamunting</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Kulim" data-track><span class="pill-label">Kulim</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Maple Grove" data-track><span class="pill-label">Maple Grove</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Nuevo Laredo" data-track><span class="pill-label">Nuevo Laredo</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Tecate" data-track><span class="pill-label">Tecate</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Zdar" data-track><span class="pill-label">Zdar</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Chihuahua/Zdar" data-track><span class="pill-label">Chihuahua/Zdar</span></label>
+              <label class="pill-option"><input type="radio" name="mfgLoc" value="Other" data-track><span class="pill-label">Other</span></label>
+            </div>
+            <div class="cr" id="mfgLocOtherBlock" style="margin-top:10px;">
+              <div class="field">
+                <label class="field-label" for="mfgLocOther">
+                  Other MFG facility <span class="req" aria-label="required">*</span>
+                  <div class="tooltip-wrap">
+                    <button class="info-btn" type="button" aria-label="Help: Other manufacturing facility">i</button>
+                    <div class="tooltip-text" role="tooltip">Please type in manufacturing facility if not in listing above.</div>
+                  </div>
+                </label>
+                <input type="text" id="mfgLocOther" placeholder="Please type in manufacturing facility if not in listing above" data-track>
+              </div>
+            </div>
+          </div>
+
+          <!-- Geographies: No path only -->
+          <div class="cr" id="lcrNoGeoBlock">
+            <div class="field">
+              <div class="field-label" id="geoLabel">Geographies <span class="req" aria-label="required">*</span></div>
+              <div class="field-hint">For non-LCR projects, which geography does this change affect?</div>
+              <div class="toggle-group" style="margin-top:6px;" role="radiogroup" aria-labelledby="geoLabel">
+                <label class="toggle-option"><input type="radio" name="geo" value="US" data-track><span class="toggle-btn">US</span></label>
+                <label class="toggle-option"><input type="radio" name="geo" value="OUS" data-track><span class="toggle-btn">OUS</span></label>
+                <label class="toggle-option"><input type="radio" name="geo" value="Global" data-track><span class="toggle-btn">Global</span></label>
+                <label class="toggle-option"><input type="radio" name="geo" value="Other" data-track><span class="toggle-btn">Other</span></label>
+              </div>
+              <div class="cr" id="geoOtherBlock" style="margin-top:10px;">
+                <input type="text" id="geoOther" placeholder="Please specify geography" data-track aria-label="Other geography">
+              </div>
+            </div>
+          </div>
+
+          <!-- NPD / Sustaining -->
+          <div class="field">
+            <div class="field-label" id="npdLabel">NPD or Sustaining? <span class="req" aria-label="required">*</span></div>
+            <div class="toggle-group" role="radiogroup" aria-labelledby="npdLabel">
+              <label class="toggle-option"><input type="radio" name="npd" value="NPD" data-track><span class="toggle-btn">NPD</span></label>
+              <label class="toggle-option"><input type="radio" name="npd" value="Sustaining" data-track><span class="toggle-btn">Sustaining</span></label>
+            </div>
+          </div>
+
+          <!-- Qty -->
+          <div class="field">
+            <label class="field-label" for="qtyCodes">
+              Qty of product codes in scope <span class="req" aria-label="required">*</span>
+              <div class="tooltip-wrap">
+                <button class="info-btn" type="button" aria-label="Help: Product codes in scope">i</button>
+                <div class="tooltip-text" role="tooltip">Number of product SKUs/REFs/CFNs in scope of change.</div>
+              </div>
+            </label>
+            <input type="number" id="qtyCodes" placeholder="e.g. 12" min="1" data-track>
+          </div>
+
+          <!-- Timelines -->
+          <hr class="field-divider">
+          <div>
+            <div class="subsection-title">Timelines for project</div>
+            <div class="subsection-hint" style="margin-top:4px;margin-bottom:14px;">Please select dates based on knowledge at time of form completion.</div>
+            <div class="field">
+              <label class="field-label" for="cutoverDate">Manufacturing cutover / label release date</label>
+              <input type="date" id="cutoverDate" data-track>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /lcrSharedBlock -->
+
+    </div>
+  </div><!-- /Classification -->
+
+  <!-- ── ATTACHMENTS ── -->
+  <div class="section-card">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      <span class="section-title">Attachments</span>
+    </div>
+    <div class="section-body">
+      <div class="field-hint" style="margin-top:-8px;">Recommended — helps us scope your project faster. Any redlines, proposals, GTIN &amp; IPN listings are welcome.</div>
+      <div
+        class="upload-zone"
+        id="dropZone"
+        role="button"
+        tabindex="0"
+        aria-label="Drop files here or click to browse"
+        ondragover="event.preventDefault(); this.classList.add('dragover')"
+        ondragleave="this.classList.remove('dragover')"
+        ondrop="handleDrop(event)"
+      >
+        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="upload-main">Drop files here</div>
+        <div class="upload-sub">or <span role="button" tabindex="0" id="browseBtn">browse to upload</span> · PDF, DOCX, XLSX, PNG accepted</div>
+      </div>
+      <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" aria-label="Choose files to upload">
+      <div class="file-list" id="fileList" role="list" aria-label="Uploaded files"></div>
+    </div>
+  </div>
+
+  <!-- ── SUBMIT SECTION ── -->
+  <div class="submit-section">
+    <!-- Send copy row -->
+    <label class="copy-row" id="copyRow">
+      <input type="checkbox" id="sendCopy" checked>
+      <div class="copy-check-box" aria-hidden="true">
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="copy-text-wrap">
+        <span class="copy-text" id="copyLabel">Send a copy of my responses to: <strong id="copyEmailDisplay">—</strong></span>
+        <div class="copy-additional-trigger" id="copyAddTrigger">
+          <button type="button" class="add-recipient-btn" id="addRecipientBtn" onclick="event.stopPropagation(); toggleAdditionalRecipient()">+ Add another recipient</button>
+        </div>
+        <div class="copy-additional" id="copyAdditional" style="display:none;">
+          <span class="copy-additional-label">Also send to:</span>
+          <input type="email" id="additionalEmail" placeholder="additional@teleflex.com" autocomplete="email" aria-label="Additional email recipient" onclick="event.stopPropagation()">
+          <button type="button" class="add-recipient-remove" onclick="event.stopPropagation(); removeAdditionalRecipient()" aria-label="Remove additional recipient">×</button>
+        </div>
+      </div>
+    </label>
+
+    <div class="submit-inner">
+      <div class="submit-note">
+        <strong>Heads up:</strong> Updates to projects already submitted must go through your assigned label resource.<br>
+        Questions? Contact your labeling representative.
+      </div>
+      <button class="btn-submit" id="btnSubmit" type="button" disabled aria-label="Submit labeling request (Ctrl+Enter)" title="Ctrl+Enter to submit">Submit Request →</button>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <a href="/privacy-policy" rel="noopener">Privacy Policy</a>
+    <a href="mailto:labeling@teleflex.com">Report Abuse</a>
+  </div>
+
+</div><!-- /form-wrap -->
+
+<!-- ═══ SUCCESS SCREEN (hidden until submit) ═══ -->
+<div id="successScreen" style="display:none;">
+  <div class="success-wrap">
+    <div class="success-card">
+
+      <div class="success-check" aria-hidden="true">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="26" cy="26" r="25" stroke="var(--green)" stroke-width="2"/>
+          <path d="M14 26L22 34L38 18" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <h2 class="success-title">Request submitted!</h2>
+      <p class="success-msg">We've captured your request. The Global Labeling Group will respond within <strong>3 business days</strong> with resources and next steps.</p>
+
+      <div class="success-ref" id="successRef" style="display:none;">
+        <span class="success-ref-label">Reference</span>
+        <span class="success-ref-val" id="successRefVal"></span>
+      </div>
+
+      <div class="success-summary" id="successSummary"></div>
+
+      <p class="success-regards">Kindest regards,<br><strong>Global Labeling Group</strong></p>
+
+      <button class="success-btn" id="submitAnotherBtn" type="button">Submit another request</button>
+
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════
+   SECURITY: XSS-safe HTML escaping
+   ═══════════════════════════════════════════════ */
+function esc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* ═══════════════════════════════════════════════
+   PRIORITY — multi-select cards (e.preventDefault
+   stops label→radio double-fire)
+   ═══════════════════════════════════════════════ */
+document.querySelectorAll('.priority-card').forEach(card => {
+  card.addEventListener('click', e => {
+    e.preventDefault();
+    card.classList.toggle('selected');
+    updateProgress();
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   LCR LOGIC — Yes/No branching
+   ═══════════════════════════════════════════════ */
+let lcrIsYes = false;
+
+document.querySelectorAll('input[name="lcr"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    lcrIsYes = radio.value.startsWith('Yes');
+    const isNo  = radio.value === 'No';
+    const anySelected = true; // either branch is selected
+
+    toggle('lcrYesOnlyBlock', lcrIsYes);
+    toggle('lcrSharedBlock', anySelected);
+    toggle('lcrNoGeoBlock', isNo);
+
+    // Re-evaluate design site sub-blocks
+    const checked = document.querySelector('input[name="designSite"]:checked');
+    if (checked) evaluateDesignSite(checked.value);
+    else {
+      toggle('designSiteCMBlock', false);
+      toggle('designSiteMWBlock', false);
+    }
+
+    updateProgress();
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   DESIGN SITE — CM / MW sub-blocks (Yes path only)
+   ═══════════════════════════════════════════════ */
+document.querySelectorAll('input[name="designSite"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    evaluateDesignSite(radio.value);
+    updateProgress();
+  });
+});
+
+function evaluateDesignSite(val) {
+  const isCM = lcrIsYes && (val === 'Chelmsford' || val === 'Maple Grove');
+  const isMW = lcrIsYes && (val === 'Morrisville' || val === 'Wyomissing' || val === 'Kamunting');
+  toggle('designSiteCMBlock', isCM);
+  toggle('designSiteMWBlock', isMW);
+  if (!isCM) toggle('translationsYesBlock', false);
+}
+
+/* ═══════════════════════════════════════════════
+   NEW TRANSLATIONS sub-block
+   ═══════════════════════════════════════════════ */
+document.querySelectorAll('input[name="newTranslations"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    toggle('translationsYesBlock', radio.value === 'Yes');
+    updateProgress();
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   MFG FG LOCATION — Other expand + revert
+   ═══════════════════════════════════════════════ */
+const MFG_LOC_VALUES = ['Chelmsford','Chihuahua','Hradec','Juventud','Kamunting','Kulim',
+  'Maple Grove','Nuevo Laredo','Tecate','Zdar','Chihuahua/Zdar'];
+
+document.querySelectorAll('input[name="mfgLoc"]').forEach(r => {
+  r.addEventListener('change', () => {
+    toggle('mfgLocOtherBlock', r.value === 'Other');
+    updateProgress();
+  });
+});
+
+const mfgOtherInput = document.getElementById('mfgLocOther');
+if (mfgOtherInput) {
+  mfgOtherInput.addEventListener('input', () => {
+    const typed = mfgOtherInput.value.trim().toLowerCase();
+    if (!typed) return;
+    const match = MFG_LOC_VALUES.find(v => v.toLowerCase() === typed);
+    if (match) {
+      const radio = document.querySelector(`input[name="mfgLoc"][value="${match}"]`);
+      if (radio) {
+        radio.checked = true;
+        toggle('mfgLocOtherBlock', false);
+        mfgOtherInput.value = '';
+        updateProgress();
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   GEOGRAPHIES — Other expand
+   ═══════════════════════════════════════════════ */
+document.querySelectorAll('input[name="geo"]').forEach(r => {
+  r.addEventListener('change', () => {
+    toggle('geoOtherBlock', r.value === 'Other');
+    updateProgress();
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   FILE UPLOAD — event delegation (no inline onclick,
+   CSP-safe), XSS-safe rendering
+   ═══════════════════════════════════════════════ */
+const uploadedFiles = [];
+
+// Drop zone
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const browseBtn = document.getElementById('browseBtn');
+
+function openFilePicker() { fileInput.click(); }
+dropZone.addEventListener('click', openFilePicker);
+dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openFilePicker(); });
+browseBtn.addEventListener('click', e => { e.stopPropagation(); openFilePicker(); });
+browseBtn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); openFilePicker(); } });
+fileInput.addEventListener('change', () => { Array.from(fileInput.files).forEach(addFile); fileInput.value = ''; });
+
+function handleDrop(e) {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  Array.from(e.dataTransfer.files).forEach(addFile);
+}
+
+function addFile(file) { uploadedFiles.push(file); renderFileList(); updateProgress(); }
+
+function removeFile(i) { uploadedFiles.splice(i, 1); renderFileList(); updateProgress(); }
+window.removeFile = removeFile;
+
+function formatSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1048576).toFixed(1) + ' MB';
+}
+
+function renderFileList() {
+  const list = document.getElementById('fileList');
+  // Build with DOM methods — XSS-safe
+  list.innerHTML = '';
+  uploadedFiles.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.setAttribute('role', 'listitem');
+
+    const icon = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    icon.setAttribute('width','14'); icon.setAttribute('height','14');
+    icon.setAttribute('viewBox','0 0 24 24'); icon.setAttribute('fill','none');
+    icon.setAttribute('stroke','currentColor'); icon.setAttribute('stroke-width','2');
+    icon.setAttribute('stroke-linecap','round'); icon.setAttribute('stroke-linejoin','round');
+    icon.setAttribute('aria-hidden','true');
+    icon.innerHTML = '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>';
+
+    const name = document.createTextNode(f.name);
+    const size = document.createElement('span');
+    size.className = 'file-size';
+    size.textContent = formatSize(f.size);
+
+    const btn = document.createElement('button');
+    btn.className = 'file-remove';
+    btn.type = 'button';
+    btn.dataset.idx = i;
+    btn.setAttribute('aria-label', `Remove ${f.name}`);
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+    item.appendChild(icon);
+    item.appendChild(name);
+    item.appendChild(size);
+    item.appendChild(btn);
+    list.appendChild(item);
+  });
+}
+
+// Event delegation for file removal
+document.getElementById('fileList').addEventListener('click', e => {
+  const btn = e.target.closest('.file-remove');
+  if (btn) removeFile(parseInt(btn.dataset.idx, 10));
+});
+
+/* ═══════════════════════════════════════════════
+   EMAIL VALIDATION
+   ═══════════════════════════════════════════════ */
+function isValidEmail(val) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val.trim());
+}
+
+const reqEmailEl = document.getElementById('reqEmail');
+reqEmailEl.addEventListener('blur', function() {
+  const bad = this.value.trim() !== '' && !isValidEmail(this.value);
+  this.classList.toggle('invalid', bad);
+  document.getElementById('emailError').classList.toggle('visible', bad);
+  updateProgress();
+  syncCopyEmail();
+});
+reqEmailEl.addEventListener('input', function() {
+  if (this.classList.contains('invalid') && isValidEmail(this.value.trim())) {
+    this.classList.remove('invalid');
+    document.getElementById('emailError').classList.remove('visible');
+  }
+  updateProgress();
+  syncCopyEmail();
+});
+
+/* ═══════════════════════════════════════════════
+   SEND COPY — dynamic email display, checked by
+   default, optional additional recipient
+   ═══════════════════════════════════════════════ */
+const sendCopyEl   = document.getElementById('sendCopy');
+const copyEmailEl  = document.getElementById('copyEmailDisplay');
+
+function syncCopyEmail() {
+  const val = reqEmailEl.value.trim();
+  const valid = isValidEmail(val);
+  copyEmailEl.textContent = valid ? val : '—';
+}
+
+sendCopyEl.addEventListener('change', () => {
+  const trigger = document.getElementById('copyAddTrigger');
+  const additional = document.getElementById('copyAdditional');
+  if (!sendCopyEl.checked) {
+    // Hide everything when unchecked
+    if (trigger) trigger.style.display = 'none';
+    if (additional) additional.style.display = 'none';
+  } else {
+    if (trigger) trigger.style.display = '';
+  }
+});
+
+function toggleAdditionalRecipient() {
+  const trigger = document.getElementById('copyAddTrigger');
+  const additional = document.getElementById('copyAdditional');
+  if (additional) {
+    additional.style.display = 'flex';
+    document.getElementById('additionalEmail').focus();
+  }
+  if (trigger) trigger.style.display = 'none';
+}
+
+function removeAdditionalRecipient() {
+  const trigger = document.getElementById('copyAddTrigger');
+  const additional = document.getElementById('copyAdditional');
+  if (additional) {
+    additional.style.display = 'none';
+    document.getElementById('additionalEmail').value = '';
+  }
+  if (trigger) trigger.style.display = '';
+}
+
+document.getElementById('additionalEmail').addEventListener('click', e => e.stopPropagation());
+
+/* ═══════════════════════════════════════════════
+   PROGRESS + SUBMIT GATING
+   ═══════════════════════════════════════════════ */
+const baseRequired = [
+  () => isValidEmail(document.getElementById('reqEmail').value),
+  () => document.getElementById('projManager').value.trim() !== '',
+  () => document.getElementById('projName').value.trim() !== '',
+  () => !!document.querySelector('.priority-card.selected'),
+  () => document.getElementById('labelSpec').value.trim() !== '',
+  () => !!document.querySelector('input[name="bu"]:checked'),
+  () => !!document.querySelector('input[name="lcr"]:checked'),
+];
+
+// Conditional checks keyed to block IDs
+const conditionalRequired = [
+  { blockId: 'lcrYesOnlyBlock', checks: [
+    () => document.getElementById('changeReqNum').value.trim() !== '',
+    () => document.getElementById('changeOrderNum').value.trim() !== '',
+  ]},
+  { blockId: 'lcrSharedBlock', checks: [
+    () => document.getElementById('projReason').value.trim() !== '',
+    () => document.getElementById('projDesc').value.trim() !== '',
+    () => !!document.querySelector('input[name="designSite"]:checked'),
+    () => !!document.querySelector('input[name="aop"]:checked'),
+    () => !!document.querySelector('input[name="mfgLoc"]:checked'),
+    () => !!document.querySelector('input[name="npd"]:checked'),
+    () => document.getElementById('qtyCodes').value.trim() !== '',
+  ]},
+  { blockId: 'designSiteCMBlock', checks: [
+    () => !!document.querySelector('input[name="newGtins"]:checked'),
+    () => !!document.querySelector('input[name="newIpns"]:checked'),
+    () => !!document.querySelector('input[name="newTranslations"]:checked'),
+    () => document.getElementById('riaRationale').value.trim() !== '',
+    () => !!document.querySelector('input[name="packagingImpact"]:checked'),
+    () => !!document.querySelector('input[name="labelSizeChange"]:checked'),
+    // At least one of the three approver roles must be filled
+    () => [document.getElementById('foMarketingCM'),
+           document.getElementById('foRACM'),
+           document.getElementById('foEngineeringCM')].some(el => el && el.value.trim() !== ''),
+  ]},
+  { blockId: 'translationsYesBlock', checks: [
+    () => document.getElementById('costCenter').value.trim() !== '',
+    () => !!document.querySelector('input[name="langs"]:checked'),
+  ]},
+  { blockId: 'designSiteMWBlock', checks: [
+    () => [document.getElementById('foMarketingMW'),
+           document.getElementById('foRAMW'),
+           document.getElementById('foEngineeringMW')].some(el => el && el.value.trim() !== ''),
+  ]},
+  { blockId: 'mfgLocOtherBlock', checks: [
+    () => document.getElementById('mfgLocOther').value.trim() !== '',
+  ]},
+  { blockId: 'lcrNoGeoBlock', checks: [
+    () => !!document.querySelector('input[name="geo"]:checked'),
+  ]},
+  { blockId: 'geoOtherBlock', checks: [
+    () => document.getElementById('geoOther').value.trim() !== '',
+  ]},
+];
+
+function updateProgress() {
+  const allChecks = [...baseRequired];
+  conditionalRequired.forEach(({ blockId, checks }) => {
+    if (document.getElementById(blockId).classList.contains('on')) {
+      allChecks.push(...checks);
+    }
+  });
+  const done  = allChecks.filter(fn => fn()).length;
+  const total = allChecks.length;
+  const pct   = Math.round((done / total) * 100);
+  const ready = pct === 100;
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent  = pct + '%';
+
+  // Live label: "Your progress" until complete, then flash "✓ Ready to submit"
+  const label = document.getElementById('progressLabel');
+  if (label) {
+    if (ready) {
+      label.textContent = '✓ Ready to submit';
+      label.style.color = 'var(--green)';
+    } else {
+      label.textContent = `${done} of ${total} complete`;
+      label.style.color = 'var(--green)';
+    }
+  }
+
+  document.getElementById('btnSubmit').disabled = !ready;
+}
+
+// Wire all data-track elements
+document.querySelectorAll('[data-track]').forEach(el => {
+  el.addEventListener('input',  updateProgress);
+  el.addEventListener('change', updateProgress);
+});
+
+/* ═══════════════════════════════════════════════
+   HELPER: toggle conditional-reveal block
+   ═══════════════════════════════════════════════ */
+function toggle(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (show) {
+    el.classList.remove('on-flex');
+    el.classList.toggle('on', true);
+  } else {
+    el.classList.remove('on');
+    el.classList.remove('on-flex');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   LANGUAGE PRESETS + SEARCH + localStorage
+   ═══════════════════════════════════════════════ */
+const LS_KEY = 'teleflex.glr.userPresets';  // namespaced to avoid collision
+
+const BUILTIN_PRESETS = [
+  { key: 'efigs',      label: 'EFIGS',       langs: ['en','fr','it','de','es'] },
+  { key: 'eu',         label: 'EU Core',      langs: ['bg','cs','da','de','el','en','es','et','fi','fr','ga','hr','hu','it','lt','lv','mt','nl','pl','pt','ro','sk','sl','sv'] },
+  { key: 'nordic',     label: 'Nordic',       langs: ['da','fi','no','sv'] },
+  { key: 'apac',       label: 'APAC',         langs: ['ja','ko','zh_cn','zh_tw','id','ms','th','vi'] },
+  { key: 'americas',   label: 'Americas',     langs: ['es','es_la','fr_cn','pt_br'] },
+  { key: 'globalfull', label: 'Global Full',  langs: ['bg','cs','da','de','el','en','es','es_la','et','fi','fr','fr_cn','ga','hr','hu','id','is','it','ja','ko','lb','lt','lv','ms','mt','nl','no','pl','pt','pt_br','ro','ru','sk','sl','sr','sv','th','tr','uk','vi','zh_cn','zh_tw'] },
+];
+
+const LANG_ALIASES = {
+  'bulgarian':'bg','czech':'cs','danish':'da','german':'de','greek':'el',
+  'english':'en','spanish':'es','spanish latin american':'es_la','latin american spanish':'es_la',
+  'estonian':'et','finnish':'fi','french':'fr','french canadian':'fr_cn',
+  'irish':'ga','croatian':'hr','hungarian':'hu','indonesian':'id',
+  'icelandic':'is','italian':'it','japanese':'ja','korean':'ko',
+  'luxembourgish':'lb','lithuanian':'lt','latvian':'lv','malay':'ms',
+  'maltese':'mt','dutch':'nl','norwegian':'no','polish':'pl',
+  'portuguese':'pt','portuguese brazilian':'pt_br','brazilian portuguese':'pt_br',
+  'romanian':'ro','russian':'ru','slovak':'sk','slovene':'sl','slovenian':'sl',
+  'serbian':'sr','swedish':'sv','thai':'th','turkish':'tr','ukrainian':'uk',
+  'vietnamese':'vi','chinese simplified':'zh_cn','simplified chinese':'zh_cn',
+  'chinese traditional':'zh_tw','traditional chinese':'zh_tw',
+};
+
+// localStorage helpers
+function loadUserPresets() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; }
+}
+function saveUserPresetsToStorage(p) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(p)); } catch { /* storage unavailable */ }
+}
+
+// Render built-in presets (counts stay live)
+function renderBuiltinPresets() {
+  const container = document.getElementById('builtinPresetBtns');
+  if (!container) return;
+  const allVals = Array.from(document.querySelectorAll('input[name="langs"]')).map(cb => cb.value);
+  // Build with DOM — avoids innerHTML injection
+  container.innerHTML = '';
+  BUILTIN_PRESETS.forEach(p => {
+    const count = p.langs.filter(l => allVals.includes(l)).length;
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.type = 'button';
+    btn.dataset.key = p.key;
+    btn.innerHTML = esc(p.label) + `<span class="preset-count"> (${count})</span>`;
+    container.appendChild(btn);
+  });
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'preset-btn preset-clear';
+  clearBtn.type = 'button';
+  clearBtn.dataset.key = 'none';
+  clearBtn.textContent = 'Clear';
+  container.appendChild(clearBtn);
+}
+
+// Render user presets — XSS-safe via esc()
+function renderUserPresets() {
+  const presets   = loadUserPresets();
+  const container = document.getElementById('userPresetBtns');
+  if (!container) return;
+  container.style.display = '';
+  container.innerHTML = '';
+
+  presets.forEach((p, i) => {
+    const pill = document.createElement('div');
+    pill.className = 'user-preset-pill';
+    pill.id = `upill-${i}`;
+
+    const name = document.createElement('span');
+    name.className = 'user-preset-name';
+    name.dataset.idx = i;
+    name.innerHTML = esc(p.name) + ` <span style="font-weight:400;opacity:0.6;font-size:10px;">(${p.langs.length})</span>`;
+
+    const del = document.createElement('button');
+    del.className = 'user-preset-del';
+    del.id = `udel-${i}`;
+    del.type = 'button';
+    del.dataset.idx = i;
+    del.title = 'Delete preset';
+    del.setAttribute('aria-label', `Delete preset ${p.name}`);
+    del.textContent = '×';
+
+    pill.appendChild(name);
+    pill.appendChild(del);
+    container.appendChild(pill);
+  });
+
+  const trigger = document.createElement('button');
+  trigger.className = 'preset-save-trigger';
+  trigger.type = 'button';
+  trigger.id = 'savePresetTrigger';
+  trigger.textContent = '+ Save as preset…';
+  container.appendChild(trigger);
+}
+
+// Event delegation for lang controls — no inline onclick
+document.getElementById('builtinPresetBtns').addEventListener('click', e => {
+  const btn = e.target.closest('.preset-btn');
+  if (btn) applyLangPreset(btn.dataset.key);
+});
+
+document.getElementById('userPresetBtns').addEventListener('click', e => {
+  const name = e.target.closest('.user-preset-name');
+  const del  = e.target.closest('.user-preset-del');
+  const trig = e.target.closest('#savePresetTrigger');
+  if (name) applyUserPreset(parseInt(name.dataset.idx, 10));
+  if (del && !del.classList.contains('confirm')) beginDeletePreset(parseInt(del.dataset.idx, 10));
+  else if (del && del.classList.contains('confirm'))  confirmDeletePreset(parseInt(del.dataset.idx, 10));
+  if (trig) showSavePresetRow();
+});
+
+document.getElementById('userPresetBtns').addEventListener('click', e => {
+  const cancel = e.target.closest('.user-preset-cancel');
+  if (cancel) cancelDeletePreset(parseInt(cancel.dataset.idx, 10));
+});
+
+// Preset application
+let _preClearSnapshot = null;
+let _undoTimer = null;
+
+function applyLangPreset(key) {
+  if (key === 'none') {
+    _preClearSnapshot = Array.from(document.querySelectorAll('input[name="langs"]:checked')).map(cb => cb.value);
+    if (!_preClearSnapshot.length) { _preClearSnapshot = null; return; }
+    setLangs([]);
+    showLangFeedback(null, null);
+    document.getElementById('langUndoBar').style.display = 'flex';
+    clearTimeout(_undoTimer);
+    _undoTimer = setTimeout(() => {
+      _preClearSnapshot = null;
+      document.getElementById('langUndoBar').style.display = 'none';
+    }, 5000);
+  } else {
+    const preset = BUILTIN_PRESETS.find(p => p.key === key);
+    setLangs(preset ? preset.langs : []);
+    showLangFeedback(null, null);
+    hideClearUndo();
+  }
+}
+
+function undoClear() {
+  if (_preClearSnapshot) { setLangs(_preClearSnapshot); _preClearSnapshot = null; }
+  hideClearUndo();
+}
+function hideClearUndo() {
+  clearTimeout(_undoTimer);
+  document.getElementById('langUndoBar').style.display = 'none';
+}
+
+document.getElementById('undoClearBtn').addEventListener('click', undoClear);
+
+function applyUserPreset(idx) {
+  const p = loadUserPresets()[idx];
+  if (p) { setLangs(p.langs); showLangFeedback(null, null); }
+}
+
+function beginDeletePreset(idx) {
+  const pill   = document.getElementById(`upill-${idx}`);
+  const delBtn = document.getElementById(`udel-${idx}`);
+  if (!pill || !delBtn) return;
+  pill.classList.add('confirm-delete');
+  delBtn.classList.add('confirm');
+  delBtn.textContent = 'Delete?';
+  delBtn.title = 'Click again to confirm';
+
+  const cancel = document.createElement('button');
+  cancel.className = 'user-preset-cancel';
+  cancel.type = 'button';
+  cancel.dataset.idx = idx;
+  cancel.title = 'Cancel';
+  cancel.textContent = '↩';
+  pill.appendChild(cancel);
+
+  delBtn._cancelTimer = setTimeout(() => cancelDeletePreset(idx), 4000);
+}
+
+function confirmDeletePreset(idx) {
+  const presets = loadUserPresets();
+  presets.splice(idx, 1);
+  saveUserPresetsToStorage(presets);
+  renderUserPresets();
+}
+
+function cancelDeletePreset(idx) {
+  const pill   = document.getElementById(`upill-${idx}`);
+  const delBtn = document.getElementById(`udel-${idx}`);
+  if (!pill || !delBtn) return;
+  clearTimeout(delBtn._cancelTimer);
+  pill.classList.remove('confirm-delete');
+  delBtn.classList.remove('confirm');
+  delBtn.textContent = '×';
+  delBtn.title = 'Delete preset';
+  const c = pill.querySelector('.user-preset-cancel');
+  if (c) c.remove();
+}
+
+// Save preset
+function showSavePresetRow() {
+  document.getElementById('langSaveNameRow').style.display = 'flex';
+  document.getElementById('presetNameInput').focus();
+}
+function cancelSavePreset() {
+  document.getElementById('langSaveNameRow').style.display = 'none';
+  document.getElementById('presetNameInput').value = '';
+  document.getElementById('presetSaveHint').textContent = '';
+}
+function confirmSavePreset() {
+  const name = document.getElementById('presetNameInput').value.trim();
+  const hint = document.getElementById('presetSaveHint');
+  if (!name) { hint.textContent = 'Enter a name first.'; hint.style.color = 'var(--red)'; return; }
+  const selected = Array.from(document.querySelectorAll('input[name="langs"]:checked')).map(cb => cb.value);
+  if (!selected.length) { hint.textContent = 'Select at least one language first.'; hint.style.color = 'var(--red)'; return; }
+  const presets  = loadUserPresets();
+  const existing = presets.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+  if (existing >= 0 && !hint.dataset.overwriteConfirmed) {
+    hint.textContent = '';
+    // Use DOM to set the warning safely (no innerHTML with user data)
+    const warn = document.createElement('span');
+    warn.className = 'preset-overwrite-warn';
+    warn.textContent = `⚠ "${name}" already exists — Save again to overwrite.`;
+    hint.appendChild(warn);
+    hint.dataset.overwriteConfirmed = '1';
+    setTimeout(() => { if (hint.dataset.overwriteConfirmed) { hint.textContent = ''; delete hint.dataset.overwriteConfirmed; } }, 5000);
+    return;
+  }
+  if (existing >= 0) presets[existing].langs = selected;
+  else presets.push({ name, langs: selected });
+  saveUserPresetsToStorage(presets);
+  renderUserPresets();
+  cancelSavePreset();
+  delete hint.dataset.overwriteConfirmed;
+}
+
+document.getElementById('confirmSaveBtn').addEventListener('click', confirmSavePreset);
+document.getElementById('cancelSaveBtn').addEventListener('click',  cancelSavePreset);
+document.getElementById('presetNameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); confirmSavePreset(); }
+  if (e.key === 'Escape') cancelSavePreset();
+});
+
+// Core lang functions
+function setLangs(values) {
+  document.querySelectorAll('input[name="langs"]').forEach(cb => { cb.checked = values.includes(cb.value); });
+  updateLangCount();
+  updateProgress();
+}
+
+function parseLangText(raw) {
+  const tokens   = raw.split(/[\s,;|/\n]+/).map(t => t.trim().toLowerCase()).filter(Boolean);
+  const allVals  = Array.from(document.querySelectorAll('input[name="langs"]')).map(cb => cb.value);
+  const matched  = new Set();
+  const unmatched = [];
+  tokens.forEach(tok => {
+    if (allVals.includes(tok))                          { matched.add(tok); return; }
+    if (LANG_ALIASES[tok])                              { matched.add(LANG_ALIASES[tok]); return; }
+    const partial = allVals.filter(v => v.startsWith(tok));
+    if (partial.length)                                 { partial.forEach(v => matched.add(v)); return; }
+    unmatched.push(tok);
+  });
+  return { matched: [...matched], unmatched };
+}
+
+function showLangFeedback(matchCount, unmatched) {
+  const fb    = document.getElementById('langFeedback');
+  const okEl  = document.getElementById('langFeedbackOk');
+  const warnEl = document.getElementById('langFeedbackWarn');
+  if (matchCount === null) { fb.classList.remove('visible'); return; }
+  okEl.textContent = matchCount > 0 ? `${matchCount} matched` : '';
+  // XSS-safe: build unmatched display with DOM
+  warnEl.textContent = '';
+  if (unmatched && unmatched.length) {
+    const msg  = document.createTextNode(`${unmatched.length} not matched: `);
+    const code = document.createElement('span');
+    code.className = 'lang-feedback-tokens';
+    code.textContent = unmatched.join(', ');
+    warnEl.appendChild(msg);
+    warnEl.appendChild(code);
+  }
+  fb.classList.add('visible');
+}
+
+function updateLangCount() {
+  const n  = document.querySelectorAll('input[name="langs"]:checked').length;
+  const el = document.getElementById('langCount');
+  if (el) el.querySelector('span').textContent = n;
+}
+
+document.querySelectorAll('input[name="langs"]').forEach(cb => {
+  cb.addEventListener('change', () => { updateLangCount(); updateProgress(); showLangFeedback(null, null); });
+});
+
+// Copy selection
+document.getElementById('copyLangBtn').addEventListener('click', function() {
+  const names = Array.from(document.querySelectorAll('input[name="langs"]:checked')).map(cb => {
+    return cb.closest('.pill-option')?.querySelector('.pill-label')?.textContent?.trim() || cb.value;
+  });
+  if (!names.length) return;
+  navigator.clipboard.writeText(names.join(', ')).then(() => {
+    const orig = this.innerHTML;
+    this.textContent = '✓ Copied!';
+    this.style.color = 'var(--green-dark)';
+    this.style.borderColor = 'var(--green-dark)';
+    setTimeout(() => { this.innerHTML = orig; this.style.color = ''; this.style.borderColor = ''; }, 2000);
+  });
+});
+
+// Search input
+function clearLangSearch() {
+  const input   = document.getElementById('langSearchInput');
+  const clearBtn = document.getElementById('langSearchClear');
+  if (input) { input.value = ''; input.focus(); }
+  if (clearBtn) clearBtn.style.display = 'none';
+  document.querySelectorAll('#langGrid .pill-option').forEach(opt => opt.style.display = '');
+}
+
+const searchInput = document.getElementById('langSearchInput');
+if (searchInput) {
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const raw = searchInput.value.trim();
+      if (!raw) return;
+      const { matched, unmatched } = parseLangText(raw);
+      if (matched.length) setLangs(matched);
+      showLangFeedback(matched.length, unmatched);
+      clearLangSearch();
+    }
+  });
+  searchInput.addEventListener('input', () => {
+    const q       = searchInput.value.trim().toLowerCase();
+    const clearBtn = document.getElementById('langSearchClear');
+    if (clearBtn) clearBtn.style.display = q ? '' : 'none';
+    const visible = [];
+    document.querySelectorAll('#langGrid .pill-option').forEach(opt => {
+      const label = opt.querySelector('.pill-label').textContent.toLowerCase();
+      const val   = opt.querySelector('input').value.toLowerCase();
+      const show  = !q || label.includes(q) || val.includes(q);
+      opt.style.display = show ? '' : 'none';
+      if (show) visible.push(opt);
+    });
+    if (visible.length === 1) {
+      const cb = visible[0].querySelector('input[type="checkbox"]');
+      const handler = function() { cb.removeEventListener('change', handler); if (cb.checked) clearLangSearch(); };
+      cb.removeEventListener('change', handler);
+      cb.addEventListener('change', handler);
+    }
+  });
+}
+
+document.getElementById('langSearchClear').addEventListener('click', clearLangSearch);
+
+/* ═══════════════════════════════════════════════
+   SUBMIT — posts to Cloudflare Worker (token-safe)
+   ═══════════════════════════════════════════════ */
+document.getElementById('btnSubmit').addEventListener('click', handleSubmit);
+
+/* ═══════════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+   ═══════════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  // Ctrl+Enter / Cmd+Enter → submit (if enabled)
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    const btn = document.getElementById('btnSubmit');
+    if (!btn.disabled) { e.preventDefault(); handleSubmit(); }
+  }
+  // Escape → clear focused text input (standard UX)
+  if (e.key === 'Escape' && document.activeElement) {
+    const el = document.activeElement;
+    if ((el.tagName === 'INPUT' && el.type !== 'radio' && el.type !== 'checkbox') || el.tagName === 'TEXTAREA') {
+      el.blur();
+    }
+  }
+});
+
+async function handleSubmit() {
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const payload = collectFormData();
+
+  try {
+    const res = await fetch('/api/submit-glr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+    const data = await res.json().catch(() => ({}));
+    showSuccessScreen(payload, data.referenceId || null);
+
+  } catch (err) {
+    console.error('Submit failed:', err);
+    btn.disabled = false;
+    btn.textContent = 'Submit Request →';
+    alert('Submission failed — please try again or contact your labeling representative.');
+  }
+}
+
+function showSuccessScreen(payload, refId) {
+  // Hide the entire form area
+  document.getElementById('progressFill').closest('.progress-bar-wrap').style.display = 'none';
+  document.querySelector('.page-header').style.display = 'none';
+  document.querySelector('.form-wrap').style.display = 'none';
+
+  // Show success screen
+  const screen = document.getElementById('successScreen');
+  screen.style.display = '';
+
+  // Reference number
+  if (refId) {
+    document.getElementById('successRefVal').textContent = refId;
+    document.getElementById('successRef').style.display = 'flex';
+  }
+
+  // Summary of key fields
+  const summary = document.getElementById('successSummary');
+  const rows = [
+    ['Project', payload.projectName],
+    ['Business unit', payload.businessUnit],
+    ['Priority', Array.isArray(payload.priority) ? payload.priority.map(p => `P${p}`).join(', ') : payload.priority],
+    ['Design site', payload.designSite],
+    ['LCR/ECR/NCR', payload.lcr],
+  ].filter(([, v]) => v);
+
+  summary.innerHTML = '';
+  rows.forEach(([key, val]) => {
+    const row = document.createElement('div');
+    row.className = 'success-summary-row';
+    const k = document.createElement('span');
+    k.className = 'success-summary-key';
+    k.textContent = key;
+    const v = document.createElement('span');
+    v.className = 'success-summary-val';
+    v.textContent = val;
+    row.appendChild(k);
+    row.appendChild(v);
+    summary.appendChild(row);
+  });
+
+  // "Submit another" reloads the page cleanly
+  document.getElementById('submitAnotherBtn').addEventListener('click', () => {
+    window.location.reload();
+  });
+}
+
+function formatApprovers(mktg, ra, eng) {
+  const parts = [];
+  if (mktg) parts.push(`Marketing - ${mktg}`);
+  if (ra)   parts.push(`RA - ${ra}`);
+  if (eng)  parts.push(`Engineering - ${eng}`);
+  return parts.join('  ');
+}
+
+function collectFormData() {
+  const g = id => document.getElementById(id)?.value?.trim() ?? '';
+  const r = name => document.querySelector(`input[name="${name}"]:checked`)?.value ?? '';
+  const priorities = Array.from(document.querySelectorAll('.priority-card.selected')).map(c => c.dataset.p);
+  const langs = Array.from(document.querySelectorAll('input[name="langs"]:checked')).map(cb => cb.value);
+
+  // Save requester email to localStorage for next visit
+  const email = g('reqEmail');
+  if (email) {
+    try { localStorage.setItem('teleflex.glr.lastEmail', email); } catch {}
+  }
+
+  const functionalOwnersCM = formatApprovers(g('foMarketingCM'), g('foRACM'), g('foEngineeringCM'));
+  const functionalOwnersMW = formatApprovers(g('foMarketingMW'), g('foRAMW'), g('foEngineeringMW'));
+
+  return {
+    // ── Smartsheet column mapping reference ──
+    // Field name in form          → Smartsheet column name
+    requesterEmail:     email,                              // "Requester Email:"
+    projectManager:     g('projManager'),                   // "Project Manager:"
+    projectName:        g('projName'),                      // "Project Name:"
+    priority:           priorities,                         // "Priority:"
+    sustainingProject:  g('sustainingNum'),                  // "Sustaining Project Number:"
+    sustainingIntake:   g('intakeNum'),                      // "Sustaining Intake Number:"
+    labelSpec:          g('labelSpec'),                      // "Label Spec Number:"
+    businessUnit:       r('bu'),                             // "Business Unit:"
+    lcr:                r('lcr'),                            // "LCR, ECR/ECO or NCR/CO Created?:"
+    changeReqNum:       g('changeReqNum'),                   // "Change Request Number (LCR/ECR/NCR):"
+    changeOrderNum:     g('changeOrderNum'),                 // "Change Order Number (CO/DCO/ECO):"
+    projectReason:      g('projReason'),                     // "Project Reason:"
+    projectDesc:        g('projDesc'),                       // "Brief Project Description:"
+    designSite:         r('designSite'),                     // "Design Site:"
+    aop:                r('aop'),                            // "Planned AOP Project?"
+    mfgLocation:        r('mfgLoc') === 'Other' ? g('mfgLocOther') : r('mfgLoc'),  // "Manufacturing FG Location:" / "Other MFG Facility:"
+    geographies:        r('geo'),                            // "Geographies:"
+    npd:                r('npd'),                            // "NPD or Sustaining:"
+    qtyCodes:           g('qtyCodes'),                       // "Qty of Product Codes in Scope:"
+    cutoverDate:        g('cutoverDate'),                    // "Manufacturing Cutover / Label Release Date:"
+    newGtins:           r('newGtins'),                       // "New GTINs Required:"
+    newIpns:            r('newIpns'),                        // "New IPNs Required:"
+    newTranslations:    r('newTranslations'),                // "Translation Required:"
+    costCenter:         g('costCenter'),                     // "Cost Center:"
+    languages:          langs,                               // "Countries to be translated:"
+    riaRationale:       g('riaRationale'),                   // "Regulatory Impact Assessment Rationale:"
+    packagingImpact:    r('packagingImpact'),                // "Packaging Impact:"
+    labelSizeChange:    r('labelSizeChange'),                // "Label Size Change Required:"
+    designWork:         r('designWorkCM') || r('designWorkMW'),  // "Design Work Requested:"
+    functionalOwners:   functionalOwnersCM || functionalOwnersMW, // "Functional Owners:"
+    sendCopyToSelf:     document.getElementById('sendCopy').checked,
+    additionalEmail:    g('additionalEmail'),
+  };
+}
+
+/* ═══════════════════════════════════════════════
+   SMART DEFAULTS (based on historical data analysis)
+   ═══════════════════════════════════════════════ */
+function applyDefaults() {
+  // Requester email: restore last used address from localStorage
+  const lastEmail = localStorage.getItem('teleflex.glr.lastEmail');
+  const emailEl = document.getElementById('reqEmail');
+  if (lastEmail && isValidEmail(lastEmail) && emailEl && !emailEl.value) {
+    emailEl.value = lastEmail;
+    syncCopyEmail();
+  }
+
+  // Sustaining Project # and Sustaining Intake # → N/A
+  // (59% of submissions have no value; N/A is the conventional placeholder)
+  const snEl = document.getElementById('sustainingNum');
+  if (snEl && !snEl.value) snEl.value = 'N/A';
+  const siEl = document.getElementById('intakeNum');
+  if (siEl && !siEl.value) siEl.value = 'N/A';
+
+  // NPD or Sustaining → Sustaining (92% of submissions)
+  const sustainingRadio = document.querySelector('input[name="npd"][value="Sustaining"]');
+  if (sustainingRadio) sustainingRadio.checked = true;
+
+  // Planned AOP Project → No (76% of submissions)
+  const aopNoRadio = document.querySelector('input[name="aop"][value="No"]');
+  if (aopNoRadio) aopNoRadio.checked = true;
+
+  // Packaging Impact → No (96% of answered submissions)
+  const packNoRadio = document.querySelector('input[name="packagingImpact"][value="No"]');
+  if (packNoRadio) packNoRadio.checked = true;
+
+  // Label Size Change → No (98% of answered submissions)
+  const labelNoRadio = document.querySelector('input[name="labelSizeChange"][value="No"]');
+  if (labelNoRadio) labelNoRadio.checked = true;
+
+  // New GTINs → No (70% of answered submissions)
+  const gtinsNoRadio = document.querySelector('input[name="newGtins"][value="No"]');
+  if (gtinsNoRadio) gtinsNoRadio.checked = true;
+
+  // New IPNs → No (71% of answered submissions)
+  const ipnsNoRadio = document.querySelector('input[name="newIpns"][value="No"]');
+  if (ipnsNoRadio) ipnsNoRadio.checked = true;
+}
+
+/* ═══════════════════════════════════════════════
+   INITIALISE
+   ═══════════════════════════════════════════════ */
+renderBuiltinPresets();
+renderUserPresets();
+applyDefaults();
+syncCopyEmail();
+updateProgress();
+
+// Autofocus: if email was pre-filled from localStorage, skip to project name;
+// otherwise focus email field so user can start typing immediately
+const emailAtLoad = document.getElementById('reqEmail').value;
+if (emailAtLoad && isValidEmail(emailAtLoad)) {
+  document.getElementById('projName').focus();
+} else {
+  document.getElementById('reqEmail').focus();
+}
+</script>
+</body>
+</html>
