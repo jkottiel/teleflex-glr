@@ -252,14 +252,69 @@
   .btn-submit { background: var(--green); color: var(--navy); font-family: var(--font); font-size: 15px; font-weight: 700; border: none; border-radius: 8px; padding: 12px 32px; cursor: pointer; transition: all var(--t); box-shadow: 0 2px 12px rgba(62,207,142,0.35); letter-spacing: 0.02em; white-space: nowrap; }
   .btn-submit:hover { background: var(--green-dark); box-shadow: 0 4px 20px rgba(62,207,142,0.45); transform: translateY(-1px); }
   .btn-submit:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(62,207,142,0.3); }
-  .btn-submit:disabled { background: var(--gray-200); color: var(--gray-400); box-shadow: none; cursor: not-allowed; transform: none; }
+  .btn-submit[data-disabled="true"] { background: var(--gray-200); color: var(--gray-400); box-shadow: none; transform: none; }
+  .btn-submit[data-disabled="true"]:hover { background: var(--gray-300); transform: none; box-shadow: none; }
+  .btn-submit-remaining { font-size: 11px; font-weight: 500; display: block; opacity: 0.75; margin-top: 2px; letter-spacing: 0; }
+
+  /* ─── FIELD COMPLETION CHECKMARK ─── */
+  .field-wrap { position: relative; }
+  .field-complete-check {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--green);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: checkPop 0.2s cubic-bezier(.34,1.56,.64,1);
+    flex-shrink: 0;
+  }
+  @keyframes checkPop {
+    from { transform: translateY(-50%) scale(0.5); opacity: 0; }
+    to   { transform: translateY(-50%) scale(1);   opacity: 1; }
+  }
+  .field-complete-check.visible { display: flex; }
+  .field-complete-check svg { width: 10px; height: 10px; }
+  /* Shift input right padding when checkmark is visible */
+  .field-wrap.complete input[type="text"],
+  .field-wrap.complete input[type="email"],
+  .field-wrap.complete input[type="number"],
+  .field-wrap.complete input[type="date"],
+  .field-wrap.complete textarea {
+    border-color: var(--green);
+    padding-right: 36px;
+  }
+
+  /* ─── AMBER PULSE — scroll-to-missing highlight ─── */
+  @keyframes amberPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(217,119,6,0.5); }
+    50%  { box-shadow: 0 0 0 6px rgba(217,119,6,0.2); }
+    100% { box-shadow: 0 0 0 0 rgba(217,119,6,0); }
+  }
+  .highlight-missing {
+    animation: amberPulse 0.7s ease 2;
+    border-color: #d97706 !important;
+    border-radius: var(--radius-sm);
+  }
 
   /* ─── FOOTER ─── */
   .page-footer { text-align: center; padding: 28px 16px 16px; font-size: 12px; color: var(--gray-400); display: flex; gap: 16px; justify-content: center; }
   .page-footer a { color: var(--gray-400); text-decoration: none; }
   .page-footer a:hover { color: var(--gray-600); }
 
-  /* ─── OPTIONAL FIELD ─── */
+  /* ─── QTY SPINNER ─── */
+  .qty-wrap { display: flex; align-items: center; gap: 0; max-width: 200px; }
+  .qty-wrap input { text-align: center; border-radius: 0; flex: 1; min-width: 0; }
+  .qty-btn { width: 38px; height: 42px; border: 1.5px solid var(--gray-200); background: var(--gray-50); color: var(--gray-600); font-size: 18px; font-weight: 400; cursor: pointer; transition: all var(--t); flex-shrink: 0; display: flex; align-items: center; justify-content: center; line-height: 1; user-select: none; }
+  .qty-btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); border-right: none; }
+  .qty-btn:last-child  { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: none; }
+  .qty-btn:hover { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+  .qty-wrap input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(62,207,142,0.15); z-index: 1; position: relative; }
   .optional-field { background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: var(--radius-sm); padding: 12px 14px; }
   .optional-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gray-400); background: var(--gray-100); border-radius: 99px; padding: 2px 7px; margin-left: 4px; vertical-align: middle; }
 
@@ -510,7 +565,7 @@
 
           <div class="field">
             <label class="field-label" for="projReason">Project reason <span class="req" aria-label="required">*</span></label>
-            <input type="text" id="projReason" placeholder="Brief reason for this labeling project" data-track>
+            <textarea id="projReason" rows="2" placeholder="Brief reason for this labeling project" data-track></textarea>
           </div>
 
           <div class="field">
@@ -702,20 +757,26 @@
               </div>
 
               <div class="field">
-                <div class="field-label" id="foLabelCM">Functional owner approvers <span class="req" aria-label="required">*</span></div>
-                <div class="field-hint" style="margin-bottom:10px;">At least one approver required across the three roles.</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-                  <div class="field">
-                    <label class="field-label" for="foMarketingCM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Marketing</label>
-                    <input type="text" id="foMarketingCM" placeholder="Name" data-track autocomplete="name">
-                  </div>
-                  <div class="field">
-                    <label class="field-label" for="foRACM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Reg. Affairs</label>
-                    <input type="text" id="foRACM" placeholder="Name" data-track autocomplete="name">
-                  </div>
-                  <div class="field">
-                    <label class="field-label" for="foEngineeringCM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Engineering</label>
-                    <input type="text" id="foEngineeringCM" placeholder="Name" data-track autocomplete="name">
+                <div class="field-label" id="foLabelCM">Specify functional owner approvers? <span class="optional-badge">optional</span></div>
+                <div class="field-hint" style="margin-bottom:8px;">Marketing · Reg. Affairs · Engineering</div>
+                <div class="toggle-group" role="radiogroup" aria-labelledby="foLabelCM">
+                  <label class="toggle-option"><input type="radio" name="specifyOwnersCM" value="Yes" data-track><span class="toggle-btn">Yes</span></label>
+                  <label class="toggle-option"><input type="radio" name="specifyOwnersCM" value="No" data-track><span class="toggle-btn">Not yet / N/A</span></label>
+                </div>
+                <div class="cr" id="foBlockCM" style="margin-top:12px;">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                    <div class="field">
+                      <label class="field-label" for="foMarketingCM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Marketing</label>
+                      <input type="text" id="foMarketingCM" placeholder="Name" data-track autocomplete="name">
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="foRACM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Reg. Affairs</label>
+                      <input type="text" id="foRACM" placeholder="Name" data-track autocomplete="name">
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="foEngineeringCM" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Engineering</label>
+                      <input type="text" id="foEngineeringCM" placeholder="Name" data-track autocomplete="name">
+                    </div>
                   </div>
                 </div>
               </div>
@@ -749,20 +810,26 @@
                 </div>
               </div>
               <div class="field">
-                <div class="field-label" id="foLabelMW">Functional owner approvers <span class="req" aria-label="required">*</span></div>
-                <div class="field-hint" style="margin-bottom:10px;">At least one approver required across the three roles.</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-                  <div class="field">
-                    <label class="field-label" for="foMarketingMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Marketing</label>
-                    <input type="text" id="foMarketingMW" placeholder="Name" data-track autocomplete="name">
-                  </div>
-                  <div class="field">
-                    <label class="field-label" for="foRAMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Reg. Affairs</label>
-                    <input type="text" id="foRAMW" placeholder="Name" data-track autocomplete="name">
-                  </div>
-                  <div class="field">
-                    <label class="field-label" for="foEngineeringMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Engineering</label>
-                    <input type="text" id="foEngineeringMW" placeholder="Name" data-track autocomplete="name">
+                <div class="field-label" id="foLabelMW">Specify functional owner approvers? <span class="optional-badge">optional</span></div>
+                <div class="field-hint" style="margin-bottom:8px;">Marketing · Reg. Affairs · Engineering</div>
+                <div class="toggle-group" role="radiogroup" aria-labelledby="foLabelMW">
+                  <label class="toggle-option"><input type="radio" name="specifyOwnersMW" value="Yes" data-track><span class="toggle-btn">Yes</span></label>
+                  <label class="toggle-option"><input type="radio" name="specifyOwnersMW" value="No" data-track><span class="toggle-btn">Not yet / N/A</span></label>
+                </div>
+                <div class="cr" id="foBlockMW" style="margin-top:12px;">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                    <div class="field">
+                      <label class="field-label" for="foMarketingMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Marketing</label>
+                      <input type="text" id="foMarketingMW" placeholder="Name" data-track autocomplete="name">
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="foRAMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Reg. Affairs</label>
+                      <input type="text" id="foRAMW" placeholder="Name" data-track autocomplete="name">
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="foEngineeringMW" style="text-transform:none;font-size:12px;font-weight:600;color:var(--gray-400);">Engineering</label>
+                      <input type="text" id="foEngineeringMW" placeholder="Name" data-track autocomplete="name">
+                    </div>
                   </div>
                 </div>
               </div>
@@ -836,10 +903,14 @@
               Qty of product codes in scope <span class="req" aria-label="required">*</span>
               <div class="tooltip-wrap">
                 <button class="info-btn" type="button" aria-label="Help: Product codes in scope">i</button>
-                <div class="tooltip-text" role="tooltip">Number of product SKUs/REFs/CFNs in scope of change.</div>
+                <div class="tooltip-text" role="tooltip">Number of product SKUs/REFs/CFNs in scope of change. Text values like "TBD" are also accepted.</div>
               </div>
             </label>
-            <input type="number" id="qtyCodes" placeholder="e.g. 12" min="1" data-track>
+            <div class="qty-wrap">
+              <button class="qty-btn" type="button" id="qtyDown" aria-label="Decrease quantity">−</button>
+              <input type="text" id="qtyCodes" placeholder="e.g. 12 or TBD" data-track aria-label="Quantity of product codes">
+              <button class="qty-btn" type="button" id="qtyUp" aria-label="Increase quantity">+</button>
+            </div>
           </div>
 
           <!-- Timelines -->
@@ -912,7 +983,7 @@
         <strong>Heads up:</strong> Updates to projects already submitted must go through your assigned label resource.<br>
         Questions? Contact your labeling representative.
       </div>
-      <button class="btn-submit" id="btnSubmit" type="button" disabled aria-label="Submit labeling request (Ctrl+Enter)" title="Ctrl+Enter to submit">Submit Request →</button>
+      <button class="btn-submit" id="btnSubmit" type="button" data-disabled="true" aria-label="Submit labeling request (Ctrl+Enter)" title="Ctrl+Enter to submit">Submit Request →</button>
     </div>
   </div>
 
@@ -1067,8 +1138,35 @@ if (mfgOtherInput) {
 }
 
 /* ═══════════════════════════════════════════════
-   GEOGRAPHIES — Other expand
+   QTY SPINNER — +/- buttons, text values allowed
    ═══════════════════════════════════════════════ */
+document.getElementById('qtyDown').addEventListener('click', () => {
+  const input = document.getElementById('qtyCodes');
+  const n = parseInt(input.value, 10);
+  if (!isNaN(n) && n > 1) { input.value = n - 1; input.dispatchEvent(new Event('input')); }
+});
+document.getElementById('qtyUp').addEventListener('click', () => {
+  const input = document.getElementById('qtyCodes');
+  const n = parseInt(input.value, 10);
+  if (!isNaN(n)) { input.value = n + 1; input.dispatchEvent(new Event('input')); }
+  else if (!input.value.trim()) { input.value = 1; input.dispatchEvent(new Event('input')); }
+});
+
+/* ═══════════════════════════════════════════════
+   SPECIFY FUNCTIONAL OWNERS — Yes expands fields
+   ═══════════════════════════════════════════════ */
+document.querySelectorAll('input[name="specifyOwnersCM"]').forEach(r => {
+  r.addEventListener('change', () => {
+    toggle('foBlockCM', r.value === 'Yes');
+    updateProgress();
+  });
+});
+document.querySelectorAll('input[name="specifyOwnersMW"]').forEach(r => {
+  r.addEventListener('change', () => {
+    toggle('foBlockMW', r.value === 'Yes');
+    updateProgress();
+  });
+});
 document.querySelectorAll('input[name="geo"]').forEach(r => {
   r.addEventListener('change', () => {
     toggle('geoOtherBlock', r.value === 'Other');
@@ -1227,92 +1325,191 @@ document.getElementById('additionalEmail').addEventListener('click', e => e.stop
 
 /* ═══════════════════════════════════════════════
    PROGRESS + SUBMIT GATING
+   Each check has: fn (the test), el (element to
+   scroll to if failing), type (input|radio|group)
    ═══════════════════════════════════════════════ */
+
+// Helper: get element lazily (conditional fields may not exist yet)
+const el = id => document.getElementById(id);
+const ra = name => document.querySelector(`input[name="${name}"]:checked`);
+
 const baseRequired = [
-  () => isValidEmail(document.getElementById('reqEmail').value),
-  () => document.getElementById('projManager').value.trim() !== '',
-  () => document.getElementById('projName').value.trim() !== '',
-  () => !!document.querySelector('.priority-card.selected'),
-  () => document.getElementById('labelSpec').value.trim() !== '',
-  () => !!document.querySelector('input[name="bu"]:checked'),
-  () => !!document.querySelector('input[name="lcr"]:checked'),
+  { fn: () => isValidEmail(el('reqEmail')?.value ?? ''),          elId: 'reqEmail',     type: 'input' },
+  { fn: () => (el('projManager')?.value ?? '').trim() !== '',      elId: 'projManager',  type: 'input' },
+  { fn: () => (el('projName')?.value ?? '').trim() !== '',         elId: 'projName',     type: 'input' },
+  { fn: () => !!document.querySelector('.priority-card.selected'), elId: 'priorityLabel',type: 'group' },
+  { fn: () => (el('labelSpec')?.value ?? '').trim() !== '',        elId: 'labelSpec',    type: 'input' },
+  { fn: () => !!ra('bu'),                                          elId: 'buLabel',      type: 'group' },
+  { fn: () => !!ra('lcr'),                                         elId: 'lcrLabel',     type: 'group' },
 ];
 
-// Conditional checks keyed to block IDs
 const conditionalRequired = [
   { blockId: 'lcrYesOnlyBlock', checks: [
-    () => document.getElementById('changeReqNum').value.trim() !== '',
-    () => document.getElementById('changeOrderNum').value.trim() !== '',
+    { fn: () => (el('changeReqNum')?.value ?? '').trim() !== '',  elId: 'changeReqNum',  type: 'input' },
+    { fn: () => (el('changeOrderNum')?.value ?? '').trim() !== '',elId: 'changeOrderNum',type: 'input' },
   ]},
   { blockId: 'lcrSharedBlock', checks: [
-    () => document.getElementById('projReason').value.trim() !== '',
-    () => document.getElementById('projDesc').value.trim() !== '',
-    () => !!document.querySelector('input[name="designSite"]:checked'),
-    () => !!document.querySelector('input[name="aop"]:checked'),
-    () => !!document.querySelector('input[name="mfgLoc"]:checked'),
-    () => !!document.querySelector('input[name="npd"]:checked'),
-    () => document.getElementById('qtyCodes').value.trim() !== '',
+    { fn: () => (el('projReason')?.value ?? '').trim() !== '',    elId: 'projReason',    type: 'input' },
+    { fn: () => (el('projDesc')?.value ?? '').trim() !== '',      elId: 'projDesc',      type: 'input' },
+    { fn: () => !!ra('designSite'),                               elId: 'dsLabel',       type: 'group' },
+    { fn: () => !!ra('aop'),                                      elId: 'aopLabel',      type: 'group' },
+    { fn: () => !!ra('mfgLoc'),                                   elId: 'mfgLabel',      type: 'group' },
+    { fn: () => !!ra('npd'),                                      elId: 'npdLabel',      type: 'group' },
+    { fn: () => (el('qtyCodes')?.value ?? '').trim() !== '',      elId: 'qtyCodes',      type: 'input' },
   ]},
   { blockId: 'designSiteCMBlock', checks: [
-    () => !!document.querySelector('input[name="newGtins"]:checked'),
-    () => !!document.querySelector('input[name="newIpns"]:checked'),
-    () => !!document.querySelector('input[name="newTranslations"]:checked'),
-    () => document.getElementById('riaRationale').value.trim() !== '',
-    () => !!document.querySelector('input[name="packagingImpact"]:checked'),
-    () => !!document.querySelector('input[name="labelSizeChange"]:checked'),
-    // At least one of the three approver roles must be filled
-    () => [document.getElementById('foMarketingCM'),
-           document.getElementById('foRACM'),
-           document.getElementById('foEngineeringCM')].some(el => el && el.value.trim() !== ''),
+    { fn: () => !!ra('newGtins'),                                 elId: 'newGtinsLabel', type: 'group' },
+    { fn: () => !!ra('newIpns'),                                  elId: 'newIpnsLabel',  type: 'group' },
+    { fn: () => !!ra('newTranslations'),                          elId: 'newTransLabel', type: 'group' },
+    { fn: () => (el('riaRationale')?.value ?? '').trim() !== '',  elId: 'riaRationale',  type: 'input' },
+    { fn: () => !!ra('packagingImpact'),                          elId: 'packLabel',     type: 'group' },
+    { fn: () => !!ra('labelSizeChange'),                          elId: 'labelSizeLabel',type: 'group' },
+  ]},
+  { blockId: 'foBlockCM', checks: [
+    { fn: () => ['foMarketingCM','foRACM','foEngineeringCM'].some(id => (el(id)?.value ?? '').trim() !== ''),
+                                                                  elId: 'foLabelCM',     type: 'group' },
   ]},
   { blockId: 'translationsYesBlock', checks: [
-    () => document.getElementById('costCenter').value.trim() !== '',
-    () => !!document.querySelector('input[name="langs"]:checked'),
+    { fn: () => (el('costCenter')?.value ?? '').trim() !== '',    elId: 'costCenter',    type: 'input' },
+    { fn: () => !!document.querySelector('input[name="langs"]:checked'),
+                                                                  elId: 'langCount',     type: 'group' },
   ]},
   { blockId: 'designSiteMWBlock', checks: [
-    () => [document.getElementById('foMarketingMW'),
-           document.getElementById('foRAMW'),
-           document.getElementById('foEngineeringMW')].some(el => el && el.value.trim() !== ''),
+  ]},
+  { blockId: 'foBlockMW', checks: [
+    { fn: () => ['foMarketingMW','foRAMW','foEngineeringMW'].some(id => (el(id)?.value ?? '').trim() !== ''),
+                                                                  elId: 'foLabelMW',     type: 'group' },
   ]},
   { blockId: 'mfgLocOtherBlock', checks: [
-    () => document.getElementById('mfgLocOther').value.trim() !== '',
+    { fn: () => (el('mfgLocOther')?.value ?? '').trim() !== '',   elId: 'mfgLocOther',   type: 'input' },
   ]},
   { blockId: 'lcrNoGeoBlock', checks: [
-    () => !!document.querySelector('input[name="geo"]:checked'),
+    { fn: () => !!ra('geo'),                                      elId: 'geoLabel',      type: 'group' },
   ]},
   { blockId: 'geoOtherBlock', checks: [
-    () => document.getElementById('geoOther').value.trim() !== '',
+    { fn: () => (el('geoOther')?.value ?? '').trim() !== '',      elId: 'geoOther',      type: 'input' },
   ]},
 ];
+
+/* ── Field completion checkmarks ── */
+// Wrap every required text/email/number/date/textarea input in a .field-wrap
+// and inject a green check badge — done once at init, then toggled on updateProgress
+function initFieldCheckmarks() {
+  const inputIds = [
+    'reqEmail','projManager','projName','labelSpec',
+    'changeReqNum','changeOrderNum','projReason','projDesc',
+    'qtyCodes','riaRationale','costCenter','mfgLocOther','geoOther',
+    'cutoverDate',
+  ];
+  inputIds.forEach(id => {
+    const input = document.getElementById(id);
+    if (!input || input.closest('.field-wrap')) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'field-wrap';
+    wrapper.dataset.fieldId = id;
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    const check = document.createElement('div');
+    check.className = 'field-complete-check';
+    check.setAttribute('aria-hidden', 'true');
+    check.innerHTML = '<svg viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    wrapper.appendChild(check);
+  });
+}
+
+function updateFieldCheckmarks(allChecks) {
+  // For each input-type check, update its .field-wrap
+  allChecks.forEach(({ fn, elId, type }) => {
+    if (type !== 'input') return;
+    const input = document.getElementById(elId);
+    if (!input) return;
+    const wrapper = input.closest('.field-wrap');
+    if (!wrapper) return;
+    const done = fn();
+    wrapper.classList.toggle('complete', done);
+    const check = wrapper.querySelector('.field-complete-check');
+    if (check) check.classList.toggle('visible', done);
+  });
+}
+
+/* ── Click-to-find: clicking the button when not ready scrolls to first failing field;
+      clicking when ready submits ── */
+document.getElementById('btnSubmit').addEventListener('click', function() {
+  if (this.dataset.disabled !== 'true') {
+    handleSubmit();
+    return;
+  }
+  findAndHighlightFirstMissing();
+});
+
+function findAndHighlightFirstMissing() {
+  const allChecks = [...baseRequired];
+  conditionalRequired.forEach(({ blockId, checks }) => {
+    if (document.getElementById(blockId)?.classList.contains('on')) {
+      allChecks.push(...checks);
+    }
+  });
+
+  const firstFailing = allChecks.find(({ fn }) => !fn());
+  if (!firstFailing) return;
+
+  const target = document.getElementById(firstFailing.elId);
+  if (!target) return;
+
+  // Scroll into view with a little breathing room above the sticky bar
+  const offset = 80;
+  const top = target.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top, behavior: 'smooth' });
+
+  // Amber pulse after scroll settles
+  setTimeout(() => {
+    const pulseEl = firstFailing.type === 'input'
+      ? (target.closest('.field-wrap') || target)
+      : target.closest('.field') || target;
+
+    pulseEl.classList.add('highlight-missing');
+    pulseEl.addEventListener('animationend', () => {
+      pulseEl.classList.remove('highlight-missing');
+    }, { once: true });
+  }, 400);
+}
 
 function updateProgress() {
   const allChecks = [...baseRequired];
   conditionalRequired.forEach(({ blockId, checks }) => {
-    if (document.getElementById(blockId).classList.contains('on')) {
+    if (document.getElementById(blockId)?.classList.contains('on')) {
       allChecks.push(...checks);
     }
   });
-  const done  = allChecks.filter(fn => fn()).length;
-  const total = allChecks.length;
-  const pct   = Math.round((done / total) * 100);
-  const ready = pct === 100;
 
+  const done  = allChecks.filter(({ fn }) => fn()).length;
+  const total = allChecks.length;
+  const remaining = total - done;
+  const ready = remaining === 0;
+
+  // Progress bar
+  const pct = Math.round((done / total) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressPct').textContent  = pct + '%';
 
-  // Live label: "Your progress" until complete, then flash "✓ Ready to submit"
+  // Progress label
   const label = document.getElementById('progressLabel');
   if (label) {
-    if (ready) {
-      label.textContent = '✓ Ready to submit';
-      label.style.color = 'var(--green)';
-    } else {
-      label.textContent = `${done} of ${total} complete`;
-      label.style.color = 'var(--green)';
-    }
+    label.textContent = ready ? '✓ Ready to submit' : `${done} of ${total} complete`;
   }
 
-  document.getElementById('btnSubmit').disabled = !ready;
+  // Submit button — show remaining count when not ready, normal label when ready
+  const btn = document.getElementById('btnSubmit');
+  if (ready) {
+    btn.dataset.disabled = 'false';
+    btn.innerHTML = 'Submit Request →';
+  } else {
+    btn.dataset.disabled = 'true';
+    btn.innerHTML = `Submit Request <span class="btn-submit-remaining">${remaining} field${remaining === 1 ? '' : 's'} remaining — click to find</span>`;
+  }
+
+  // Per-field green checkmarks
+  updateFieldCheckmarks(allChecks);
 }
 
 // Wire all data-track elements
@@ -1696,7 +1893,9 @@ document.getElementById('langSearchClear').addEventListener('click', clearLangSe
 /* ═══════════════════════════════════════════════
    SUBMIT — posts to Cloudflare Worker (token-safe)
    ═══════════════════════════════════════════════ */
-document.getElementById('btnSubmit').addEventListener('click', handleSubmit);
+// Single click handler: find-missing when disabled, submit when enabled
+// (The disabled-click handler above already handles both cases via its guard)
+
 
 /* ═══════════════════════════════════════════════
    KEYBOARD SHORTCUTS
@@ -1705,7 +1904,7 @@ document.addEventListener('keydown', e => {
   // Ctrl+Enter / Cmd+Enter → submit (if enabled)
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     const btn = document.getElementById('btnSubmit');
-    if (!btn.disabled) { e.preventDefault(); handleSubmit(); }
+    if (btn.dataset.disabled !== 'true') { e.preventDefault(); handleSubmit(); }
   }
   // Escape → clear focused text input (standard UX)
   if (e.key === 'Escape' && document.activeElement) {
@@ -1809,8 +2008,14 @@ function collectFormData() {
     try { localStorage.setItem('teleflex.glr.lastEmail', email); } catch {}
   }
 
-  const functionalOwnersCM = formatApprovers(g('foMarketingCM'), g('foRACM'), g('foEngineeringCM'));
-  const functionalOwnersMW = formatApprovers(g('foMarketingMW'), g('foRAMW'), g('foEngineeringMW'));
+  const specifyCM = document.querySelector('input[name="specifyOwnersCM"]:checked')?.value;
+  const specifyMW = document.querySelector('input[name="specifyOwnersMW"]:checked')?.value;
+  const functionalOwnersCM = specifyCM === 'Yes'
+    ? formatApprovers(g('foMarketingCM'), g('foRACM'), g('foEngineeringCM'))
+    : (specifyCM === 'No' ? 'N/A' : '');
+  const functionalOwnersMW = specifyMW === 'Yes'
+    ? formatApprovers(g('foMarketingMW'), g('foRAMW'), g('foEngineeringMW'))
+    : (specifyMW === 'No' ? 'N/A' : '');
 
   return {
     // ── Smartsheet column mapping reference ──
@@ -1899,6 +2104,7 @@ function applyDefaults() {
    ═══════════════════════════════════════════════ */
 renderBuiltinPresets();
 renderUserPresets();
+initFieldCheckmarks();
 applyDefaults();
 syncCopyEmail();
 updateProgress();
