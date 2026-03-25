@@ -1,4 +1,4 @@
-// v1.1
+// v1.2
 /**
  * Cloudflare Pages Function: GLR Form → Smartsheet API proxy
  * Location in repo: functions/api/submit-glr.js
@@ -162,7 +162,7 @@ async function handleSubmit(request, env) {
   if (!ssRes.ok) {
     const detail = await ssRes.text();
     console.error('Smartsheet error:', ssRes.status, detail);
-    return jsonError(502, 'Failed to submit to Smartsheet. Please try again or contact your labeling representative.');
+    return jsonError(502, `Smartsheet error ${ssRes.status}: ${detail}`);
   }
 
   // Return the auto-number LP-##### as the reference
