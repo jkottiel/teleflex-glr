@@ -1,4 +1,3 @@
-// v1.2
 /**
  * Cloudflare Pages Function: GLR Form → Smartsheet API proxy
  * Location in repo: functions/api/submit-glr.js
@@ -84,10 +83,10 @@ async function handleSubmit(request, env) {
   // LCR picklist only accepts "Yes" or "No"
   const lcrValue = String(body.lcr).startsWith('Yes') ? 'Yes' : 'No';
 
-  // Priority: form sends ['1','2'] → sheet expects 'Priority 1\nPriority 2'
+  // Priority: form sends ['1','2'] → MULTI_PICKLIST expects array like ['Priority 1','Priority 2']
   const priorityValue = Array.isArray(body.priority)
-    ? body.priority.map(p => `Priority ${p}`).join('\n')
-    : (body.priority || '');
+    ? body.priority.map(p => `Priority ${p}`)
+    : (body.priority ? [`Priority ${body.priority}`] : []);
 
   // Design Work: form sends 'Combination' → sheet expects full string
   const designWorkMap = {
@@ -144,7 +143,7 @@ async function handleSubmit(request, env) {
     cell(COL.DESIGN_WORK,        designWorkValue),
     cell(COL.FUNCTIONAL_OWNERS,  body.functionalOwners),
     cell(COL.COMMENTS,           body.comments),
-  ].filter(c => c.value !== '' && c.value !== null && c.value !== undefined);
+  ].filter(c => (c.objectValue !== undefined) || (c.value !== '' && c.value !== null && c.value !== undefined));
 
   // ── POST to Smartsheet ──
   const ssRes = await fetch(
@@ -177,6 +176,16 @@ async function handleSubmit(request, env) {
 
 // ── Helpers ──
 function cell(columnId, value) {
+  // MULTI_PICKLIST columns require objectValue format
+  if (Array.isArray(value)) {
+    return {
+      columnId,
+      objectValue: {
+        objectType: 'MULTI_PICKLIST',
+        values: value,
+      },
+    };
+  }
   return { columnId, value: value ?? '' };
 }
 function isValidEmail(val) {
