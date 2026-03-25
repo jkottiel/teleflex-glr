@@ -1,3 +1,4 @@
+// v1.1
 /**
  * Cloudflare Pages Function: GLR Form → Smartsheet API proxy
  * Location in repo: functions/api/submit-glr.js
