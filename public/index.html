@@ -307,7 +307,127 @@
   .page-footer a { color: var(--gray-400); text-decoration: none; }
   .page-footer a:hover { color: var(--gray-600); }
 
-  /* ─── QTY SPINNER ─── */
+  /* ─── TEMPLATES BAR ─── */
+  .templates-bar {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 12px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .templates-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 4px;
+    flex-shrink: 0;
+    color: var(--green-dark);
+  }
+  .templates-bar-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green-dark);
+    white-space: nowrap;
+  }
+  .templates-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 1;
+  }
+  .template-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border-radius: 99px;
+    border: 1.5px solid var(--green-dark);
+    background: var(--green-light);
+    font-family: var(--font);
+    overflow: hidden;
+    transition: all var(--t);
+  }
+  .template-pill:hover { border-color: var(--green); box-shadow: 0 2px 8px rgba(41,184,119,0.2); }
+  .template-pill-name {
+    padding: 5px 10px 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .template-pill-name:hover { color: var(--green-dark); }
+  .template-pill-meta {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--gray-400);
+    padding-right: 6px;
+  }
+  .template-pill-del {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 100%;
+    background: none;
+    border: none;
+    border-left: 1px solid rgba(41,184,119,0.25);
+    font-size: 12px;
+    color: var(--gray-400);
+    cursor: pointer;
+    transition: all var(--t);
+    padding: 0;
+    align-self: stretch;
+  }
+  .template-pill-del:hover { background: var(--red); color: var(--white); border-color: var(--red); }
+  .template-pill.confirm-delete { border-color: var(--red); background: #fff5f5; }
+  .template-pill.confirm-delete .template-pill-name { color: var(--red); opacity: 0.7; }
+  .template-pill-del.confirm { background: var(--red); color: var(--white); width: auto; padding: 0 8px; font-size: 11px; font-weight: 600; border-color: var(--red); }
+  .template-pill-cancel { display: flex; align-items: center; justify-content: center; width: 20px; background: none; border: none; border-left: 1px solid rgba(229,62,62,0.2); font-size: 11px; color: var(--gray-400); cursor: pointer; transition: all var(--t); padding: 0; align-self: stretch; }
+  .template-pill-cancel:hover { background: var(--gray-100); color: var(--gray-800); }
+
+  /* ─── SAVE AS TEMPLATE BUTTON ─── */
+  .save-template-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: 6px 12px;
+    transition: all var(--t);
+    white-space: nowrap;
+  }
+  .save-template-btn:hover { border-color: var(--green-dark); color: var(--green-dark); }
+  .template-save-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .template-name-input {
+    width: 180px;
+    padding: 6px 12px;
+    font-family: var(--font);
+    font-size: 12px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    outline: none;
+    color: var(--gray-800);
+    transition: border-color var(--t), box-shadow var(--t);
+  }
+  .template-name-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(62,207,142,0.15); }
   .qty-wrap { display: flex; align-items: center; gap: 0; max-width: 200px; }
   .qty-wrap input { text-align: center; border-radius: 0; flex: 1; min-width: 0; }
   .qty-btn { width: 38px; height: 42px; border: 1.5px solid var(--gray-200); background: var(--gray-50); color: var(--gray-600); font-size: 18px; font-weight: 400; cursor: pointer; transition: all var(--t); flex-shrink: 0; display: flex; align-items: center; justify-content: center; line-height: 1; user-select: none; }
@@ -412,6 +532,17 @@
 
 <!-- ═══ FORM ═══ -->
 <div class="form-wrap">
+
+  <!-- ── TEMPLATES BAR (hidden until templates exist) ── -->
+  <div id="templatesBar" style="display:none;">
+    <div class="templates-bar">
+      <div class="templates-bar-left">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="templates-bar-label">Templates</span>
+      </div>
+      <div class="templates-pill-row" id="templatePills"></div>
+    </div>
+  </div>
 
   <!-- ── PROJECT DETAILS (includes requester fields) ── -->
   <div class="section-card">
@@ -983,7 +1114,20 @@
         <strong>Heads up:</strong> Updates to projects already submitted must go through your assigned label resource.<br>
         Questions? Contact your labeling representative.
       </div>
-      <button class="btn-submit" id="btnSubmit" type="button" data-disabled="true" aria-label="Submit labeling request (Ctrl+Enter)" title="Ctrl+Enter to submit">Submit Request →</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <button class="btn-submit" id="btnSubmit" type="button" data-disabled="true" aria-label="Submit labeling request (Ctrl+Enter)" title="Ctrl+Enter to submit">Submit Request →</button>
+        <button class="save-template-btn" id="saveTemplateBtn" type="button">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save as template…
+        </button>
+        <!-- Inline save-name row (hidden until button clicked) -->
+        <div class="template-save-row" id="templateSaveRow" style="display:none;">
+          <input type="text" id="templateNameInput" class="template-name-input" placeholder="Template name…" maxlength="40" aria-label="Enter template name">
+          <button type="button" class="lang-action-btn primary" id="confirmTemplateSave">Save</button>
+          <button type="button" class="lang-action-btn secondary" id="cancelTemplateSave">Cancel</button>
+          <span class="lang-save-hint" id="templateSaveHint" role="status" aria-live="polite"></span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2100,10 +2244,285 @@ function applyDefaults() {
 }
 
 /* ═══════════════════════════════════════════════
-   INITIALISE
+   TEMPLATES — save/load/delete form state
+   ═══════════════════════════════════════════════ */
+const TMPL_KEY = 'teleflex.glr.templates';
+
+function loadTemplates() {
+  try { return JSON.parse(localStorage.getItem(TMPL_KEY)) || []; } catch { return []; }
+}
+function saveTemplatesToStorage(t) {
+  try { localStorage.setItem(TMPL_KEY, JSON.stringify(t)); } catch {}
+}
+
+// ── Capture current form state ──
+function captureFormState() {
+  const g = id => document.getElementById(id)?.value?.trim() ?? '';
+  const r = name => document.querySelector(`input[name="${name}"]:checked`)?.value ?? '';
+  const rAll = name => Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(i => i.value);
+  return {
+    // Text inputs
+    reqEmail:       g('reqEmail'),
+    projManager:    g('projManager'),
+    projName:       g('projName'),
+    sustainingNum:  g('sustainingNum'),
+    intakeNum:      g('intakeNum'),
+    labelSpec:      g('labelSpec'),
+    changeReqNum:   g('changeReqNum'),
+    changeOrderNum: g('changeOrderNum'),
+    projReason:     g('projReason'),
+    projDesc:       g('projDesc'),
+    qtyCodes:       g('qtyCodes'),
+    riaRationale:   g('riaRationale'),
+    costCenter:     g('costCenter'),
+    mfgLocOther:    g('mfgLocOther'),
+    geoOther:       g('geoOther'),
+    cutoverDate:    g('cutoverDate'),
+    foMarketingCM:  g('foMarketingCM'),
+    foRACM:         g('foRACM'),
+    foEngineeringCM:g('foEngineeringCM'),
+    foMarketingMW:  g('foMarketingMW'),
+    foRAMW:         g('foRAMW'),
+    foEngineeringMW:g('foEngineeringMW'),
+    cmComments:     g('cmComments'),
+    mwComments:     g('mwComments'),
+    // Radios
+    bu:             r('bu'),
+    lcr:            r('lcr'),
+    designSite:     r('designSite'),
+    aop:            r('aop'),
+    mfgLoc:         r('mfgLoc'),
+    geo:            r('geo'),
+    npd:            r('npd'),
+    newGtins:       r('newGtins'),
+    newIpns:        r('newIpns'),
+    newTranslations:r('newTranslations'),
+    packagingImpact:r('packagingImpact'),
+    labelSizeChange:r('labelSizeChange'),
+    designWorkCM:   r('designWorkCM'),
+    designWorkMW:   r('designWorkMW'),
+    specifyOwnersCM:r('specifyOwnersCM'),
+    specifyOwnersMW:r('specifyOwnersMW'),
+    // Priority (multi-select cards)
+    priority:       Array.from(document.querySelectorAll('.priority-card.selected')).map(c => c.dataset.p),
+    // Language checkboxes
+    langs:          rAll('langs'),
+  };
+}
+
+// ── Apply a saved template to the form ──
+function applyTemplate(state) {
+  // 1. Text inputs
+  const textFields = ['reqEmail','projManager','projName','sustainingNum','intakeNum',
+    'labelSpec','changeReqNum','changeOrderNum','projReason','projDesc','qtyCodes',
+    'riaRationale','costCenter','mfgLocOther','geoOther','cutoverDate',
+    'foMarketingCM','foRACM','foEngineeringCM','foMarketingMW','foRAMW','foEngineeringMW',
+    'cmComments','mwComments'];
+  textFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && state[id] !== undefined) el.value = state[id];
+  });
+
+  // 2. Priority cards
+  document.querySelectorAll('.priority-card').forEach(card => {
+    card.classList.toggle('selected', (state.priority || []).includes(card.dataset.p));
+  });
+
+  // 3. Radios — set in order so conditional reveals fire correctly
+  const radioFields = ['bu','lcr','designSite','aop','mfgLoc','geo','npd',
+    'newGtins','newIpns','newTranslations','packagingImpact','labelSizeChange',
+    'designWorkCM','designWorkMW','specifyOwnersCM','specifyOwnersMW'];
+  radioFields.forEach(name => {
+    if (!state[name]) return;
+    const radio = document.querySelector(`input[name="${name}"][value="${CSS.escape(state[name])}"]`);
+    if (radio) radio.checked = true;
+  });
+
+  // 4. Language checkboxes
+  document.querySelectorAll('input[name="langs"]').forEach(cb => {
+    cb.checked = (state.langs || []).includes(cb.value);
+  });
+
+  // 5. Replay all conditional reveals in correct dependency order
+  // LCR branch
+  const lcrVal = state.lcr || '';
+  const lcrIsYes = lcrVal.startsWith('Yes');
+  toggle('lcrYesOnlyBlock', lcrIsYes);
+  toggle('lcrSharedBlock', lcrVal !== '');
+  toggle('lcrNoGeoBlock', lcrVal === 'No');
+
+  // Design site sub-blocks (only on Yes path)
+  if (state.designSite) evaluateDesignSite(state.designSite);
+
+  // Translations sub-block
+  toggle('translationsYesBlock', state.newTranslations === 'Yes');
+
+  // MFG Other
+  toggle('mfgLocOtherBlock', state.mfgLoc === 'Other');
+
+  // Geo Other
+  toggle('geoOtherBlock', state.geo === 'Other');
+
+  // Functional owners expand
+  toggle('foBlockCM', state.specifyOwnersCM === 'Yes');
+  toggle('foBlockMW', state.specifyOwnersMW === 'Yes');
+
+  // 6. Update derived UI
+  syncCopyEmail();
+  updateLangCount();
+  updateProgress();
+
+  // Scroll to top of form
+  document.querySelector('.form-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Render template pills in the bar ──
+function renderTemplatePills() {
+  const templates = loadTemplates();
+  const bar = document.getElementById('templatesBar');
+  const container = document.getElementById('templatePills');
+  if (!bar || !container) return;
+
+  if (!templates.length) {
+    bar.style.display = 'none';
+    return;
+  }
+  bar.style.display = '';
+  container.innerHTML = '';
+
+  templates.forEach((t, i) => {
+    const pill = document.createElement('div');
+    pill.className = 'template-pill';
+    pill.id = `tpill-${i}`;
+
+    const name = document.createElement('span');
+    name.className = 'template-pill-name';
+    name.dataset.idx = i;
+    name.title = `Load "${t.name}"`;
+    name.textContent = t.name;
+
+    const del = document.createElement('button');
+    del.className = 'template-pill-del';
+    del.id = `tdel-${i}`;
+    del.type = 'button';
+    del.dataset.idx = i;
+    del.setAttribute('aria-label', `Delete template ${t.name}`);
+    del.textContent = '×';
+
+    pill.appendChild(name);
+    pill.appendChild(del);
+    container.appendChild(pill);
+  });
+}
+
+// ── Event delegation for pill interactions ──
+document.getElementById('templatePills').addEventListener('click', e => {
+  const name = e.target.closest('.template-pill-name');
+  const del  = e.target.closest('.template-pill-del');
+  const cancel = e.target.closest('.template-pill-cancel');
+
+  if (name) {
+    const templates = loadTemplates();
+    const t = templates[parseInt(name.dataset.idx, 10)];
+    if (t) applyTemplate(t.state);
+  }
+  if (del && !del.classList.contains('confirm')) beginDeleteTemplate(parseInt(del.dataset.idx, 10));
+  else if (del && del.classList.contains('confirm')) confirmDeleteTemplate(parseInt(del.dataset.idx, 10));
+  if (cancel) cancelDeleteTemplate(parseInt(cancel.dataset.idx, 10));
+});
+
+function beginDeleteTemplate(idx) {
+  const pill = document.getElementById(`tpill-${idx}`);
+  const del  = document.getElementById(`tdel-${idx}`);
+  if (!pill || !del) return;
+  pill.classList.add('confirm-delete');
+  del.classList.add('confirm');
+  del.textContent = 'Delete?';
+
+  const cancel = document.createElement('button');
+  cancel.className = 'template-pill-cancel';
+  cancel.type = 'button';
+  cancel.dataset.idx = idx;
+  cancel.textContent = '↩';
+  pill.appendChild(cancel);
+
+  del._cancelTimer = setTimeout(() => cancelDeleteTemplate(idx), 4000);
+}
+function confirmDeleteTemplate(idx) {
+  const templates = loadTemplates();
+  templates.splice(idx, 1);
+  saveTemplatesToStorage(templates);
+  renderTemplatePills();
+}
+function cancelDeleteTemplate(idx) {
+  const pill = document.getElementById(`tpill-${idx}`);
+  const del  = document.getElementById(`tdel-${idx}`);
+  if (!pill || !del) return;
+  clearTimeout(del._cancelTimer);
+  pill.classList.remove('confirm-delete');
+  del.classList.remove('confirm');
+  del.textContent = '×';
+  const c = pill.querySelector('.template-pill-cancel');
+  if (c) c.remove();
+}
+
+// ── Save template UI ──
+document.getElementById('saveTemplateBtn').addEventListener('click', () => {
+  document.getElementById('templateSaveRow').style.display = 'flex';
+  document.getElementById('templateNameInput').focus();
+});
+document.getElementById('cancelTemplateSave').addEventListener('click', cancelTemplateSave);
+document.getElementById('confirmTemplateSave').addEventListener('click', confirmTemplateSave);
+document.getElementById('templateNameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter')  { e.preventDefault(); confirmTemplateSave(); }
+  if (e.key === 'Escape') cancelTemplateSave();
+});
+
+function cancelTemplateSave() {
+  document.getElementById('templateSaveRow').style.display = 'none';
+  document.getElementById('templateNameInput').value = '';
+  document.getElementById('templateSaveHint').textContent = '';
+}
+
+function confirmTemplateSave() {
+  const name = document.getElementById('templateNameInput').value.trim();
+  const hint = document.getElementById('templateSaveHint');
+  if (!name) { hint.textContent = 'Enter a name first.'; hint.style.color = 'var(--red)'; return; }
+
+  const templates = loadTemplates();
+  const existing  = templates.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
+
+  if (existing >= 0 && !hint.dataset.overwriteConfirmed) {
+    hint.textContent = '';
+    const warn = document.createElement('span');
+    warn.className = 'preset-overwrite-warn';
+    warn.textContent = `⚠ "${name}" already exists — Save again to overwrite.`;
+    hint.appendChild(warn);
+    hint.dataset.overwriteConfirmed = '1';
+    setTimeout(() => { if (hint.dataset.overwriteConfirmed) { hint.textContent = ''; delete hint.dataset.overwriteConfirmed; } }, 5000);
+    return;
+  }
+
+  const entry = { name, state: captureFormState(), saved: new Date().toISOString() };
+  if (existing >= 0) templates[existing] = entry;
+  else templates.push(entry);
+  saveTemplatesToStorage(templates);
+  renderTemplatePills();
+  cancelTemplateSave();
+  delete hint.dataset.overwriteConfirmed;
+
+  // Brief confirmation flash on the save button
+  const btn = document.getElementById('saveTemplateBtn');
+  const orig = btn.innerHTML;
+  btn.textContent = '✓ Saved!';
+  btn.style.color = 'var(--green-dark)';
+  btn.style.borderColor = 'var(--green-dark)';
+  setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+}
    ═══════════════════════════════════════════════ */
 renderBuiltinPresets();
 renderUserPresets();
+renderTemplatePills();
 initFieldCheckmarks();
 applyDefaults();
 syncCopyEmail();
