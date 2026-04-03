@@ -134,7 +134,7 @@ if (qtyCodesInput) {
     }
 
     // Strip existing formatting so re-blurring doesn't double-wrap
-    const alreadyFormatted = /^\(\d+ codes?\): /i;
+    const alreadyFormatted = /^\d+ codes?: /i;
     if (alreadyFormatted.test(rawValue)) {
       rawValue = rawValue.replace(alreadyFormatted, '');
     }
@@ -148,9 +148,9 @@ if (qtyCodesInput) {
     const label = count === 1 ? 'code' : 'codes';
     const listStr = codes.join(', ');
 
-    // Update field with formatted display: (<count> code/codes): <list>
+    // Update field with formatted display: <count> code/codes: <list>
     qtyCodesInput.value = count > 0
-      ? `(${count} ${label}): ${listStr}`
+      ? `${count} ${label}: ${listStr}`
       : '';
 
     qtyCodesInput.dispatchEvent(new Event('change'));
