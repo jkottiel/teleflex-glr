@@ -111,19 +111,33 @@ if (mfgOtherInput) {
 }
 
 /* ═══════════════════════════════════════════════
-   QTY SPINNER — +/- buttons, text values allowed
+   PRODUCT CODES — Count comma-separated items
    ═══════════════════════════════════════════════ */
-document.getElementById('qtyDown').addEventListener('click', () => {
-  const input = document.getElementById('qtyCodes');
-  const n = parseInt(input.value, 10);
-  if (!isNaN(n) && n > 1) { input.value = n - 1; input.dispatchEvent(new Event('input')); }
-});
-document.getElementById('qtyUp').addEventListener('click', () => {
-  const input = document.getElementById('qtyCodes');
-  const n = parseInt(input.value, 10);
-  if (!isNaN(n)) { input.value = n + 1; input.dispatchEvent(new Event('input')); }
-  else if (!input.value.trim()) { input.value = 1; input.dispatchEvent(new Event('input')); }
-});
+const qtyCodesInput = document.getElementById('qtyCodes');
+if (qtyCodesInput) {
+  qtyCodesInput.addEventListener('input', () => {
+    const rawValue = qtyCodesInput.value.trim();
+    if (!rawValue) {
+      qtyCodesInput.value = '';
+      return;
+    }
+
+    // Split by commas, trim each item, and filter out empty strings
+    const codes = rawValue.split(',')
+      .map(code => code.trim())
+      .filter(code => code.length > 0);
+
+    const count = codes.length;
+    const listStr = codes.join(', ');
+
+    // Update field with formatted display
+    qtyCodesInput.value = count > 0
+      ? `${count} total product codes: ${listStr}`
+      : '';
+
+    qtyCodesInput.dispatchEvent(new Event('change'));
+  });
+}
 
 /* ═══════════════════════════════════════════════
    SPECIFY FUNCTIONAL OWNERS — Yes expands fields
