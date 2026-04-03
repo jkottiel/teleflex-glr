@@ -466,16 +466,17 @@ function findAndHighlightFirstMissing() {
   const top = target.getBoundingClientRect().top + window.scrollY - offset;
   window.scrollTo({ top, behavior: 'smooth' });
 
-  // Amber pulse after scroll settles
+  // Amber outline after scroll settles — stays until user interacts with the field
   setTimeout(() => {
     const pulseEl = firstFailing.type === 'input'
       ? (target.closest('.field-wrap') || target)
       : target.closest('.field') || target;
 
     pulseEl.classList.add('highlight-missing');
-    pulseEl.addEventListener('animationend', () => {
-      pulseEl.classList.remove('highlight-missing');
-    }, { once: true });
+    const clearHighlight = () => pulseEl.classList.remove('highlight-missing');
+    target.addEventListener('focus',  clearHighlight, { once: true });
+    target.addEventListener('change', clearHighlight, { once: true });
+    target.addEventListener('click',  clearHighlight, { once: true });
   }, 400);
 }
 
