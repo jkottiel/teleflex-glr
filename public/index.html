@@ -150,12 +150,17 @@
   .pill-option input:checked + .pill-label { background: var(--royal-blue); border-color: var(--royal-blue); color: var(--white); font-weight: 600; box-shadow: 0 2px 8px rgba(30,61,120,0.25); }
 
   /* ─── TOGGLE BUTTONS ─── */
-  .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
   .toggle-option { display: flex; }
   .toggle-option input[type="radio"] { display: none; }
   .toggle-btn { padding: 8px 20px; border-radius: var(--radius-sm); border: 1.5px solid var(--gray-200); font-size: 13px; font-weight: 600; color: var(--gray-600); cursor: pointer; transition: all var(--t); background: var(--white); user-select: none; letter-spacing: 0.03em; }
   .toggle-btn:hover { border-color: var(--royal-blue); color: var(--royal-blue); }
   .toggle-option input:checked + .toggle-btn { background: var(--royal-blue); border-color: var(--royal-blue); color: var(--white); }
+
+  /* ─── PILOT/PRODUCTION SUB-TOGGLE ─── */
+  .lcr-pilot-prod { display: none; flex-direction: column; gap: 4px; }
+  .lcr-pilot-prod .toggle-option { display: flex; }
+  .lcr-pilot-prod .toggle-btn { padding: 4px 14px; font-size: 11px; border-radius: var(--radius-sm); }
 
   /* ─── LANGUAGE QUICK-SELECT ─── */
   .lang-controls { display: flex; flex-direction: column; gap: 10px; }
@@ -674,6 +679,10 @@
           <label class="toggle-option"><input type="radio" name="lcr" value="Yes — ECR/ECO" data-track><span class="toggle-btn">Yes — ECR/ECO</span></label>
           <label class="toggle-option"><input type="radio" name="lcr" value="Yes — NCR/CO" data-track><span class="toggle-btn">Yes — NCR/CO</span></label>
           <label class="toggle-option"><input type="radio" name="lcr" value="No" data-track><span class="toggle-btn">No</span></label>
+          <div class="lcr-pilot-prod" id="lcrPilotProd" role="radiogroup" aria-label="Production or Pilot">
+            <label class="toggle-option"><input type="radio" name="pilotProd" value="Production" data-track checked><span class="toggle-btn">Production</span></label>
+            <label class="toggle-option"><input type="radio" name="pilotProd" value="Pilot" data-track><span class="toggle-btn">Pilot</span></label>
+          </div>
         </div>
       </div>
 

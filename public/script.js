@@ -39,6 +39,16 @@ document.querySelectorAll('input[name="lcr"]').forEach(radio => {
     toggle('lcrSharedBlock', anySelected);
     toggle('lcrNoGeoBlock', isNo);
 
+    // Show/hide and reposition the Production/Pilot sub-toggle
+    const widget = document.getElementById('lcrPilotProd');
+    if (lcrIsYes) {
+      const selectedLabel = radio.closest('label');
+      selectedLabel.insertAdjacentElement('afterend', widget);
+      widget.style.display = 'flex';
+    } else {
+      widget.style.display = 'none';
+    }
+
     // Re-evaluate design site sub-blocks
     const checked = document.querySelector('input[name="designSite"]:checked');
     if (checked) evaluateDesignSite(checked.value);
@@ -115,11 +125,18 @@ if (mfgOtherInput) {
    ═══════════════════════════════════════════════ */
 const qtyCodesInput = document.getElementById('qtyCodes');
 if (qtyCodesInput) {
-  qtyCodesInput.addEventListener('input', () => {
-    const rawValue = qtyCodesInput.value.trim();
+  // Format the field when user leaves it (blur)
+  qtyCodesInput.addEventListener('blur', () => {
+    let rawValue = qtyCodesInput.value.trim();
     if (!rawValue) {
       qtyCodesInput.value = '';
       return;
+    }
+
+    // Strip existing formatting so re-blurring doesn't double-wrap
+    const alreadyFormatted = /^\(\d+ codes?\): /i;
+    if (alreadyFormatted.test(rawValue)) {
+      rawValue = rawValue.replace(alreadyFormatted, '');
     }
 
     // Split by commas, trim each item, and filter out empty strings
@@ -128,11 +145,12 @@ if (qtyCodesInput) {
       .filter(code => code.length > 0);
 
     const count = codes.length;
+    const label = count === 1 ? 'code' : 'codes';
     const listStr = codes.join(', ');
 
-    // Update field with formatted display
+    // Update field with formatted display: (<count> code/codes): <list>
     qtyCodesInput.value = count > 0
-      ? `${count} total product codes: ${listStr}`
+      ? `(${count} ${label}): ${listStr}`
       : '';
 
     qtyCodesInput.dispatchEvent(new Event('change'));
@@ -1016,6 +1034,7 @@ function collectFormData() {
     labelSpec:          g('labelSpec'),                      // "Label Spec Number:"
     businessUnit:       r('bu'),                             // "Business Unit:"
     lcr:                r('lcr'),                            // "LCR, ECR/ECO or NCR/CO Created?:"
+    pilotProd:          r('pilotProd'),                      // "Production/Pilot:"
     changeReqNum:       g('changeReqNum'),                   // "Change Request Number (LCR/ECR/NCR):"
     changeOrderNum:     g('changeOrderNum'),                 // "Change Order Number (CO/DCO/ECO):"
     projectReason:      g('projReason'),                     // "Project Reason:"
@@ -1132,6 +1151,7 @@ function captureFormState() {
     // Radios
     bu:             r('bu'),
     lcr:            r('lcr'),
+    pilotProd:      r('pilotProd'),
     designSite:     r('designSite'),
     aop:            r('aop'),
     mfgLoc:         r('mfgLoc'),
@@ -1193,6 +1213,16 @@ function applyTemplate(state) {
   toggle('lcrYesOnlyBlock', lcrIsYes);
   toggle('lcrSharedBlock', lcrVal !== '');
   toggle('lcrNoGeoBlock', lcrVal === 'No');
+
+  // Reposition Production/Pilot widget on template restore
+  const widget = document.getElementById('lcrPilotProd');
+  if (lcrIsYes) {
+    const selectedLabel = document.querySelector(`input[name="lcr"][value="${lcrVal}"]`)?.closest('label');
+    if (selectedLabel) selectedLabel.insertAdjacentElement('afterend', widget);
+    widget.style.display = 'flex';
+  } else {
+    widget.style.display = 'none';
+  }
 
   // Design site sub-blocks (only on Yes path)
   if (state.designSite) evaluateDesignSite(state.designSite);
