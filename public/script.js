@@ -464,12 +464,19 @@ function findAndHighlightFirstMissing() {
   const target = document.getElementById(firstFailing.elId);
   if (!target) return;
 
-  // Scroll into view with a little breathing room above the sticky bar
+  // Scroll so the field lands ~80px below the sticky bar.
+  // If that position exceeds max scroll (field is low on a short page),
+  // center the field instead so the page always visibly moves.
   const offset = 80;
-  const top = target.getBoundingClientRect().top + window.scrollY - offset;
-  window.scrollTo({ top, behavior: 'smooth' });
+  const absoluteTop = target.getBoundingClientRect().top + window.scrollY;
+  const desiredScroll = absoluteTop - offset;
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  const scrollTarget = desiredScroll > maxScroll
+    ? Math.max(0, absoluteTop - window.innerHeight / 2)
+    : Math.max(0, desiredScroll);
+  window.scrollTo({ top: scrollTarget, behavior: 'smooth' });
 
-  // Amber outline after scroll settles — stays until user interacts with the field
+  // Amber outline + focus after scroll settles
   setTimeout(() => {
     const pulseEl = firstFailing.type === 'input'
       ? (target.closest('.field-wrap') || target)
@@ -480,12 +487,15 @@ function findAndHighlightFirstMissing() {
     void pulseEl.offsetWidth;
     pulseEl.classList.add('highlight-missing');
 
-    const clearHighlight = () => pulseEl.classList.remove('highlight-missing');
+    // Focus the field so the user can interact immediately
     if (firstFailing.type === 'input') {
-      target.addEventListener('focus',  clearHighlight, { once: true });
-      target.addEventListener('change', clearHighlight, { once: true });
+      target.focus();
+      target.addEventListener('change', () => pulseEl.classList.remove('highlight-missing'), { once: true });
     } else {
-      // For radio/card groups, listen on the .field container so any selection clears it
+      // For radio/card groups: focus first option, clear on any selection
+      const firstInput = pulseEl.querySelector('input[type="radio"],input[type="checkbox"],.priority-card');
+      firstInput?.focus();
+      const clearHighlight = () => pulseEl.classList.remove('highlight-missing');
       pulseEl.addEventListener('click',  clearHighlight, { once: true });
       pulseEl.addEventListener('change', clearHighlight, { once: true });
     }
