@@ -455,6 +455,9 @@ function findAndHighlightFirstMissing() {
     }
   });
 
+  // Clear any existing highlights before scrolling to the new target
+  document.querySelectorAll('.highlight-missing').forEach(el => el.classList.remove('highlight-missing'));
+
   const firstFailing = allChecks.find(({ fn }) => !fn());
   if (!firstFailing) return;
 
@@ -472,11 +475,20 @@ function findAndHighlightFirstMissing() {
       ? (target.closest('.field-wrap') || target)
       : target.closest('.field') || target;
 
+    // Force animation restart
+    pulseEl.classList.remove('highlight-missing');
+    void pulseEl.offsetWidth;
     pulseEl.classList.add('highlight-missing');
+
     const clearHighlight = () => pulseEl.classList.remove('highlight-missing');
-    target.addEventListener('focus',  clearHighlight, { once: true });
-    target.addEventListener('change', clearHighlight, { once: true });
-    target.addEventListener('click',  clearHighlight, { once: true });
+    if (firstFailing.type === 'input') {
+      target.addEventListener('focus',  clearHighlight, { once: true });
+      target.addEventListener('change', clearHighlight, { once: true });
+    } else {
+      // For radio/card groups, listen on the .field container so any selection clears it
+      pulseEl.addEventListener('click',  clearHighlight, { once: true });
+      pulseEl.addEventListener('change', clearHighlight, { once: true });
+    }
   }, 400);
 }
 
