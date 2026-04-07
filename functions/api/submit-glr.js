@@ -50,7 +50,6 @@ const COL = {
   LABEL_SIZE_CHANGE:  8760767699439492,
   DESIGN_WORK:        4103345351380868,
   FUNCTIONAL_OWNERS:  115768806297476,
-  PILOT_PROD:         6676134470389636,
   COMMENTS:           3190200709631876,
 };
 
@@ -113,7 +112,6 @@ async function handleSubmit(request, env) {
   const cells = [
     cell(COL.REQUESTER_EMAIL,    body.requesterEmail),
     cell(COL.LCR,                lcrValue),
-    cell(COL.PILOT_PROD,         body.pilotProd),
     cell(COL.CHANGE_REQ_NUM,     body.changeReqNum),
     cell(COL.CHANGE_ORDER_NUM,   body.changeOrderNum),
     cell(COL.PROJECT_NAME,       body.projectName),
