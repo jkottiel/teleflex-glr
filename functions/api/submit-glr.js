@@ -84,10 +84,9 @@ async function handleSubmit(request, env) {
   // LCR picklist only accepts "Yes" or "No"
   const lcrValue = String(body.lcr).startsWith('Yes') ? 'Yes' : 'No';
 
-  // Priority: form sends ['1','2'] → MULTI_PICKLIST expects array like ['Priority 1','Priority 2']
-  const priorityValue = Array.isArray(body.priority)
-    ? body.priority.map(p => `Priority ${p}`)
-    : (body.priority ? [`Priority ${body.priority}`] : []);
+  // Priority: form sends ['4'] → column is PICKLIST, expects single string like 'Priority 4'
+  const priorityRaw = Array.isArray(body.priority) ? body.priority[0] : body.priority;
+  const priorityValue = priorityRaw ? `Priority ${priorityRaw}` : '';
 
   // Design Work: form sends 'Combination' → sheet expects full string
   const designWorkMap = {
