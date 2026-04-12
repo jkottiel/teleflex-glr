@@ -105,8 +105,24 @@ async function handleSubmit(request, env) {
   // Geographies Other: only populate if 'Other' was selected
   const geoOtherVal  = body.geographies === 'Other' ? (body.geoOther || '') : '';
 
-  // Languages: join array to comma-separated string
-  const languagesVal = Array.isArray(body.languages) ? body.languages.join(', ') : '';
+  // Languages: form sends codes like 'de','fr' → Smartsheet MULTI_PICKLIST expects 'de\tGerman' etc.
+  const LANG_MAP = {
+    bg: 'bg\tBulgarian', cs: 'cs\tCzech', da: 'da\tDanish', de: 'de\tGerman',
+    el: 'el\tGreek', en: 'en\tEnglish', es: 'es\tSpanish', es_la: 'es_la\tSpanish - Latin American',
+    et: 'et\tEstonian', fi: 'fi\tFinnish', fr: 'fr\tFrench', fr_cn: 'fr_cn\tFrench Canadian',
+    ga: 'ga\tIrish', hr: 'hr\tCroatian', hu: 'hu\tHungarian', id: 'id\tIndonesian',
+    is: 'is\tIcelandic', it: 'it\tItalian', ja: 'ja\tJapanese', ko: 'ko\tKorean',
+    lb: 'lb\tLuxembourgish', lt: 'lt\tLithuanian', lv: 'lv\tLatvian', ms: 'ms\tMalay',
+    mt: 'mt\tMaltese', nl: 'nl\tDutch', no: 'no\tNorwegian', pl: 'pl\tPolish',
+    pt: 'pt\tPortuguese', pt_br: 'pt_br\tPortuguese - Brazilian', ro: 'ro\tRomanian',
+    ru: 'ru\tRussian', sk: 'sk\tSlovak', sl: 'sl\tSlovene', sr: 'sr\tSerbian',
+    sv: 'sv\tSwedish', th: 'th\tThai', tr: 'tr\tTurkish', uk: 'uk\tUkrainian',
+    vi: 'vi\tVietnamese', zh_cn: 'zh_cn\tChinese (simplified)', zh_tw: 'zh_tw\tChinese (Traditional)',
+    other: 'Other', unknown: 'Unknown at this time',
+  };
+  const languagesVal = Array.isArray(body.languages) && body.languages.length
+    ? body.languages.map(code => LANG_MAP[code] || code)
+    : '';
 
   // ── Build cells (skip blank values) ──
   const cells = [
