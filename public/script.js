@@ -4,7 +4,7 @@
    BUILD STAMP — bump on each deploy so you can
    confirm the latest version is live
    ═══════════════════════════════════════════════ */
-const BUILD_VERSION = '2026-04-12a';
+const BUILD_VERSION = '2026-04-12b';
 const stampEl = document.getElementById('buildStamp');
 if (stampEl) stampEl.textContent = `v${BUILD_VERSION}`;
 
@@ -209,6 +209,25 @@ browseBtn.addEventListener('click', e => { e.stopPropagation(); openFilePicker()
 browseBtn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); openFilePicker(); } });
 fileInput.addEventListener('change', () => { Array.from(fileInput.files).forEach(addFile); fileInput.value = ''; });
 
+// Drag-and-drop via JS listeners (more reliable than inline handlers)
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  e.stopPropagation();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', e => {
+  e.preventDefault();
+  e.stopPropagation();
+  dropZone.classList.remove('dragover');
+});
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  e.stopPropagation();
+  dropZone.classList.remove('dragover');
+  Array.from(e.dataTransfer.files).forEach(addFile);
+});
+
+// Keep global reference for inline ondrop fallback
 function handleDrop(e) {
   e.preventDefault();
   dropZone.classList.remove('dragover');
