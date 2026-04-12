@@ -1,6 +1,14 @@
 'use strict';
 
 /* ═══════════════════════════════════════════════
+   BUILD STAMP — bump on each deploy so you can
+   confirm the latest version is live
+   ═══════════════════════════════════════════════ */
+const BUILD_VERSION = '2026-04-12a';
+const stampEl = document.getElementById('buildStamp');
+if (stampEl) stampEl.textContent = `v${BUILD_VERSION}`;
+
+/* ═══════════════════════════════════════════════
    SECURITY: XSS-safe HTML escaping
    ═══════════════════════════════════════════════ */
 function esc(str) {
@@ -1008,6 +1016,61 @@ function showSuccessScreen(payload, refId) {
     row.appendChild(k);
     row.appendChild(v);
     summary.appendChild(row);
+  });
+
+  // Download submission as text file matching Smartsheet columns
+  document.getElementById('downloadSubmission').addEventListener('click', () => {
+    const p = payload;
+    const pri = Array.isArray(p.priority) ? p.priority.map(v => `Priority ${v}`).join(', ') : p.priority;
+    const langs = Array.isArray(p.languages) ? p.languages.join(', ') : '';
+    const mfgOther = p.mfgLocation && !['Chelmsford','Chihuahua','Hradec','Juventud','Kamunting','Maple Grove','Penang','Pune','Suzhou','Reynosa','Wyomissing'].includes(p.mfgLocation) ? p.mfgLocation : '';
+    const mfgVal = mfgOther ? 'Other' : (p.mfgLocation || '');
+    const geoOther = p.geoOther || '';
+    const lines = [
+      ['Requester Email:', p.requesterEmail],
+      ['LCR, ECR/ECO or NCR/CO Created?:', p.lcr ? (p.lcr.startsWith('Yes') ? 'Yes' : 'No') : ''],
+      ['Change Request Number (LCR/ECR/NCR):', p.changeReqNum],
+      ['Project Name:', p.projectName],
+      ['Business Unit:', p.businessUnit],
+      ['Project Manager:', p.projectManager],
+      ['Priority:', pri],
+      ['Sustaining Project Number:', p.sustainingProject],
+      ['Sustaining Intake Number:', p.sustainingIntake],
+      ['Label Spec Number:', p.labelSpec],
+      ['Change Order Number (CO/DCO/ECO):', p.changeOrderNum],
+      ['Design Site:', p.designSite],
+      ['Brief Project Description:', p.projectDesc],
+      ['Project Reason:', p.projectReason],
+      ['Pilot/Production', p.pilotProd],
+      ['Translation Required:', p.newTranslations],
+      ['Qty of Product Codes in Scope:', p.qtyCodes],
+      ['Countries to be translated:', langs],
+      ['Planned AOP Project?', p.aop],
+      ['Manufacturing FG Location:', mfgVal],
+      ['Other MFG Facility:', mfgOther],
+      ['Geographies:', p.geographies],
+      ['Other Geographies:', geoOther],
+      ['NPD or Sustaining:', p.npd],
+      ['Manufacturing Cutover / Label Release Date:', p.cutoverDate],
+      ['Regulatory Impact Assessment Rationale:', p.riaRationale],
+      ['New GTINs Required:', p.newGtins],
+      ['New IPNs Required:', p.newIpns],
+      ['Cost Center:', p.costCenter],
+      ['Packaging Impact:', p.packagingImpact],
+      ['Label Size Change Required:', p.labelSizeChange],
+      ['Design Work Requested:', p.designWork],
+      ['Functional Owners:', p.functionalOwners],
+      ['Comments:', p.comments],
+    ];
+    const ref = refId || 'no-ref';
+    const text = `GLR Submission — ${ref}\nSubmitted: ${new Date().toLocaleString()}\n${'─'.repeat(50)}\n` +
+      lines.map(([k, v]) => `${k}  ${v || '—'}`).join('\n');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `GLR-${ref}.txt`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   });
 
   // "Submit another" reloads the page cleanly
