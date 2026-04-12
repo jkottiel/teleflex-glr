@@ -210,6 +210,7 @@ function handleDrop(e) {
   dropZone.classList.remove('dragover');
   Array.from(e.dataTransfer.files).forEach(addFile);
 }
+window.handleDrop = handleDrop;
 
 function addFile(file) { uploadedFiles.push(file); renderFileList(); updateProgress(); }
 
@@ -967,6 +968,22 @@ async function handleSubmit() {
     if (!res.ok) throw new Error(`Server returned ${res.status}`);
 
     const data = await res.json().catch(() => ({}));
+
+    // Upload attachments to the new row (best-effort, don't block success)
+    if (data.rowId && uploadedFiles.length) {
+      btn.textContent = 'Uploading attachments…';
+      for (const file of uploadedFiles) {
+        try {
+          const fd = new FormData();
+          fd.append('rowId', String(data.rowId));
+          fd.append('file', file);
+          await fetch('/api/attach', { method: 'POST', body: fd });
+        } catch (e) {
+          console.warn('Attachment upload failed:', file.name, e);
+        }
+      }
+    }
+
     showSuccessScreen(payload, data.referenceId || null);
 
   } catch (err) {
@@ -1277,14 +1294,17 @@ function applyTemplate(state) {
     card.classList.toggle('selected', (state.priority || []).includes(card.dataset.p));
   });
 
-  // 3. Radios — set in order so conditional reveals fire correctly
+  // 3. Radios — set and dispatch change so conditional reveals + visual states fire
   const radioFields = ['bu','lcr','designSite','aop','mfgLoc','geo','npd',
     'newGtins','newIpns','newTranslations','packagingImpact','labelSizeChange',
     'designWorkCM','designWorkMW','specifyOwnersCM','specifyOwnersMW'];
   radioFields.forEach(name => {
     if (!state[name]) return;
     const radio = document.querySelector(`input[name="${name}"][value="${CSS.escape(state[name])}"]`);
-    if (radio) radio.checked = true;
+    if (radio) {
+      radio.checked = true;
+      radio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   });
 
   // 4. Language checkboxes

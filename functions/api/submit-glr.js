@@ -189,11 +189,12 @@ async function handleSubmit(request, env) {
     return jsonError(502, `Smartsheet error ${ssRes.status}: ${detail}`);
   }
 
-  // Return the auto-number LP-##### as the reference
+  // Return the auto-number LP-##### and row ID as reference
   const ssData  = await ssRes.json().catch(() => ({}));
+  const rowId   = ssData?.result?.[0]?.id ?? null;
   const autoNum = ssData?.result?.[0]?.cells?.find(c => c.columnId === 1286480381405060)?.displayValue ?? null;
 
-  return new Response(JSON.stringify({ ok: true, referenceId: autoNum }), {
+  return new Response(JSON.stringify({ ok: true, referenceId: autoNum, rowId }), {
     status:  200,
     headers: { 'Content-Type': 'application/json', ...corsHeaders() },
   });
