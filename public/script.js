@@ -193,6 +193,10 @@ document.querySelectorAll('input[name="geo"]').forEach(r => {
    ═══════════════════════════════════════════════ */
 const uploadedFiles = [];
 
+// Prevent browser from opening dropped files outside the drop zone
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => e.preventDefault());
+
 // Drop zone
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
