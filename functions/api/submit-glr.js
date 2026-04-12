@@ -124,6 +124,10 @@ async function handleSubmit(request, env) {
     ? body.languages.map(code => LANG_MAP[code] || code)
     : '';
 
+  // Debug: log the languages value being sent
+  console.log('Languages input:', JSON.stringify(body.languages));
+  console.log('Languages mapped:', JSON.stringify(languagesVal));
+
   // ── Build cells (skip blank values) ──
   const cells = [
     cell(COL.REQUESTER_EMAIL,    body.requesterEmail),
@@ -161,6 +165,10 @@ async function handleSubmit(request, env) {
     cell(COL.FUNCTIONAL_OWNERS,  body.functionalOwners),
     cell(COL.COMMENTS,           body.comments),
   ].filter(c => (c.objectValue !== undefined) || (c.value !== '' && c.value !== null && c.value !== undefined));
+
+  // Debug: log the language cell specifically
+  const langCell = cells.find(c => c.columnId === COL.LANGUAGES);
+  console.log('Language cell:', JSON.stringify(langCell));
 
   // ── POST to Smartsheet ──
   const ssRes = await fetch(
